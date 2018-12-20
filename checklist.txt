@@ -1,0 +1,13 @@
+O Update time A
+O Update per room A
+O Uncomment wait page A
+O Update time B
+O Update per room B
+O Uncomment wait page B
+O Update time C
+O Update per room C
+O Uncomment wait page C
+O Reset DB
+O Activate Survey A
+O Start server
+O Create session

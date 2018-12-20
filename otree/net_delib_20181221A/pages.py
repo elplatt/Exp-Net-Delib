@@ -16,6 +16,6 @@ class ChatWaitPage(WaitPage):
 
 page_sequence = [
     StartPage,
-    ChatWaitPage,
+#    ChatWaitPage,
     ChatPageA
 ]

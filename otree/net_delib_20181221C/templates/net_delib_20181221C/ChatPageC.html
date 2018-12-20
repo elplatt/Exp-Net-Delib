@@ -1,0 +1,60 @@
+{% extends "net_delib_20181221C/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Group Discussion Study
+{% endblock %}
+
+{% block content %}
+
+<script>
+$(document).ready(function () {
+    if (Cookies.get('surveyTriggered') == 'yes') {
+        // Survey already taken, reset flag
+        Cookies.set('surveyTriggered', 'no');
+        // Show content
+        $('.after-survey').show();
+        setTimeout(function () {
+            $('.after-survey').fadeOut("slow", function () {
+                $('.after-chat').show();
+            });
+        }, {{ Constants.chat_time }});
+        // Start timer to hide chat and show next button.
+    } else {
+        // Redirect to survey
+        Cookies.set('surveyTriggered', 'yes')
+        var returnUrl = encodeURI(window.location);
+        var surveyUrl = 'https://umich.qualtrics.com/jfe/form/SV_1ByTxFhMWhdUfWd' +
+            '?session_code={{ session.code }}' +
+            '&group_id={{ group.id }}' +
+            '&participant_id={{ participant.id }}' +
+            '&return_url=' + returnUrl;
+        window.location = surveyUrl;
+    }
+});
+</script>
+
+<div class="after-survey" style="display:none;">
+<p>
+In the chat below, please discuss the following:
+</p>
+<ul>
+<li>Report the most compelling arguments from other participants in your previous chat room, if any. Describe how they changed your opinion.
+</li>
+<li>Discuss as a group any conflicts that arose in the previous chats and whether they can be resolved and how?
+</li>
+</ul>
+
+{% chat channel=group.id %}
+
+</div>
+<div class="after-chat" style="display:none;">
+<p>
+Press the “Next” button to continue.    
+</p>
+    {% next_button %}    
+</div>
+
+    
+
+{% endblock %}

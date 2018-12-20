@@ -3,22 +3,17 @@ from ._builtin import Page, WaitPage
 from .models import Constants
 
 
-class MyPage(Page):
+class ChatPageC(Page):
     pass
 
-
-class ResultsWaitPage(WaitPage):
-
-    def after_all_players_arrive(self):
-        pass
-
-
-class Results(Page):
+class EndPageC(Page):
     pass
 
+class ChatWaitPage(WaitPage):
+    pass
 
 page_sequence = [
-    MyPage,
-    ResultsWaitPage,
-    Results
+#    ChatWaitPage,
+    ChatPageC,
+    EndPage
 ]

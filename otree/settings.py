@@ -16,7 +16,7 @@ SESSION_CONFIGS = [
         'name': 'net_delib_20181221',
         'display_name': "Networked Deliberation 12/21",
         'num_demo_participants': 4,
-        'app_sequence': ['net_delib_20181221A', 'net_delib_20181221B'],
+        'app_sequence': ['net_delib_20181221A', 'net_delib_20181221B', 'net_delib_20181221C],
     },
 ]
 # see the end of this file for the inactive session configs

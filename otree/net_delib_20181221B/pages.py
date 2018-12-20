@@ -10,6 +10,6 @@ class ChatWaitPage(WaitPage):
     pass
 
 page_sequence = [
-    ChatWaitPage,
+#    ChatWaitPage,
     ChatPageB
 ]

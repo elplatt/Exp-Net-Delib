@@ -17,11 +17,9 @@ class Constants(BaseConstants):
     num_rounds = 1
     chat_time = 5000 #10 * 60 * 1000
 
-
 class Subsession(BaseSubsession):
     def creating_session(self):
         self.group_randomly()
-
 
 class Group(BaseGroup):
     pass
