@@ -1,0 +1,28 @@
+{% extends "net_delib_20181221A/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Group Discussion Study
+{% endblock %}
+
+{% block content %}
+
+<script>
+$(document).ready(function () {
+    Cookies.set('surveyTriggered', 'no');
+});
+</script>
+
+<p>
+In this study, you will be asked for your opinion on a policy question. You will then be given an opportunity to discuss the policy question with other participants in an online chat room. This will take approximately 45 minutes in total.
+</p>
+<p>
+If at any point you have questions or wish to withdraw from the study, you may notify the study administrator.
+</p>
+<p>
+Press the “Next” button to begin.
+</p>
+
+    {% next_button %}
+
+{% endblock %}

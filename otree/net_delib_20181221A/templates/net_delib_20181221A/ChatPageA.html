@@ -1,0 +1,56 @@
+{% extends "net_delib_20181221A/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Group Discussion Study
+{% endblock %}
+
+{% block content %}
+
+<script>
+$(document).ready(function () {
+    if (Cookies.get('surveyTriggered') == 'yes') {
+        // Survey already taken, reset flag
+        Cookies.set('surveyTriggered', 'no');
+        // Show content
+        $('.after-survey').show();
+        setTimeout(function () {
+            $('.after-survey').fadeOut("slow", function () {
+                $('.after-chat').show();
+            });
+        }, {{ Constants.chat_time }});
+        // Start timer to hide chat and show next button.
+    } else {
+        // Redirect to survey
+        Cookies.set('surveyTriggered', 'yes')
+        var returnUrl = encodeURI(window.location);
+        var surveyUrl = 'https://umich.qualtrics.com/jfe/form/SV_5om2ZedQGMW3pXf' +
+            '?session_code={{ session.code }}' +
+            '&group_id={{ group.id }}' +
+            '&participant_id={{ participant.id }}' +
+            '&return_url=' + returnUrl;
+        window.location = surveyUrl;
+    }
+});
+</script>
+
+<div class="after-survey" style="display:none;">
+<p>
+You will now have an opportunity to discuss the survey question with a small group of other participants in the chat window below. The discussion will last for 10 minutes.
+</p>
+<p>
+Please share your opinion on the survey questions as well as your reasoning and any relevant experience or knowledge. If you disagree with another participant, try to understand their reasoning and how it differs from yours by engaging in discussion.
+</p>
+
+{% chat channel=group.id %}
+
+</div>
+<div class="after-chat" style="display:none;">
+<p>
+Press the “Next” button to continue.    
+</p>
+    {% next_button %}    
+</div>
+
+
+{% endblock %}
