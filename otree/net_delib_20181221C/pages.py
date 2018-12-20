@@ -6,7 +6,7 @@ from .models import Constants
 class ChatPageC(Page):
     pass
 
-class EndPageC(Page):
+class EndPage(Page):
     pass
 
 class ChatWaitPage(WaitPage):

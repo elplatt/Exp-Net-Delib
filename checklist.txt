@@ -9,5 +9,6 @@ O Update per room C
 O Uncomment wait page C
 O Reset DB
 O Activate Survey A
+O Disable debug
 O Start server
 O Create session
