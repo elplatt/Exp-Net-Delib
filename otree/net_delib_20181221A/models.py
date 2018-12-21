@@ -13,9 +13,9 @@ Your app description
 
 class Constants(BaseConstants):
     name_in_url = 'net_delib_20181221A'
-    players_per_group = 2
+    players_per_group = 5
     num_rounds = 3
-    chat_time = 5000 #10 * 60 * 1000
+    chat_time = 10 * 60 * 1000
     survey_url = [
         'https://umich.qualtrics.com/jfe/form/SV_5om2ZedQGMW3pXf',
         'https://umich.qualtrics.com/jfe/form/SV_1ByTxFhMWhdUfWd',
