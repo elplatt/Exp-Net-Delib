@@ -1,12 +1,6 @@
-O Update time A
-O Update per room A
-O Uncomment wait page A
-O Update time B
-O Update per room B
-O Uncomment wait page B
-O Update time C
-O Update per room C
-O Uncomment wait page C
+O Update time
+O Update per room
+O Uncomment wait page
 O Reset DB
 O Activate Survey A
 O Disable debug
