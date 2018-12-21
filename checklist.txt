@@ -1,5 +1,6 @@
 O Update time
 O Update per room
+O Update demo participants
 O Uncomment wait page
 O Reset DB
 O Activate Survey A
