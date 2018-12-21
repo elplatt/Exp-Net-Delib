@@ -15,7 +15,7 @@ SESSION_CONFIGS = [
     {
         'name': 'net_delib_20181221',
         'display_name': "Networked Deliberation 12/21",
-        'num_demo_participants': 4,
+        'num_demo_participants': 5,
         'app_sequence': ['net_delib_20181221_start', 'net_delib_20181221A', 'net_delib_20181221_end'],
     },
 ]
