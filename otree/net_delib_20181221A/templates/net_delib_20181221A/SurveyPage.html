@@ -1,0 +1,43 @@
+{% extends "net_delib_20181221A/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Group Discussion Study
+{% endblock %}
+
+{% block content %}
+
+<script>
+$(document).ready(function () {
+    console.log('doc ready');
+    console.log(Cookies.get('surveyTriggered'));
+    if (Cookies.get('surveyTriggered') == 'yes') {
+        console.log('triggered');
+        // Survey already taken, reset flag
+        Cookies.set('surveyTriggered', 'no');
+        // Show content
+        $('.after-survey').show();
+    } else {
+        console.log('not triggered');
+        // Redirect to survey
+        Cookies.set('surveyTriggered', 'yes');
+        var returnUrl = encodeURI(window.location);
+        var surveyUrl = '{{ survey_url }}' +
+            '?session_code={{ session.code }}' +
+            '&group_id={{ group.id }}' +
+            '&participant_id={{ participant.id }}' +
+            '&return_url=' + returnUrl;
+        window.location = surveyUrl;
+    }
+});
+</script>
+
+<div class="after-survey" style="display:none;">
+<p>
+Press the “Next” button to continue.    
+</p>
+    {% next_button %}    
+</div>
+
+
+{% endblock %}
