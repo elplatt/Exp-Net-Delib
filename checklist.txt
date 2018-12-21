@@ -4,5 +4,5 @@ O Uncomment wait page
 O Reset DB
 O Activate Survey A
 O Disable debug
-O Start server
+O Start server (OTREE_PRODUCTION)
 O Create session
