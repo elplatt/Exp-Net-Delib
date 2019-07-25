@@ -1,3 +1,25 @@
+# Configure plotting in Jupyter
+from matplotlib import pyplot as plt
+plt.rcParams.update({
+    'figure.figsize': (7.5, 7.5),
+    'axes.spines.right': False,
+    'axes.spines.left': False,
+    'axes.spines.top': False,
+    'axes.spines.bottom': False})
+# Seed random number generator
+import random
+from numpy import random as nprand
+
+
+# Import NetworkX
+import networkx as nx
+import numpy as np
+
+#to handle stats error in learning step // need to be more specific 
+from statistics import mode
+from statistics import StatisticsError
+
+
 
 def get_random_belief_bit (p):
     """Return a 1 with probability p and a 0 with probability (p - 1).
@@ -58,7 +80,7 @@ def initial_beliefs(G, p1):
     return beliefs
     
     
-def initial_beliefs_noisy(true_value, p_error):
+def initial_beliefs_noisy(G, true_value, p_error):
     '''Generates a list of beliefs with a probability error 
     #Params 
     true_value: A list of true bits
@@ -308,21 +330,21 @@ def learning_step_best_neighbor(G, beliefs, true_value):
             #key_val_equal[w]     
             key_val_equal[w] = num_equal_bits
             #print("Node", v, "Neigh", w, "num bits equal to true value", key_val_equal)
-        print("node", v, key_val_equal) #to verify if dict is working correctly
+        #print("node", v, key_val_equal) #to verify if dict is working correctly
         
         #finds neighbors with max vals
 
         max_value = max(key_val_equal.values()) 
         max_neigh = [k for k, v in key_val_equal.items() if v == max_value] # getting all keys containing the `maximum`
   
-        print(max_value, max_neigh)
+        #print(max_value, max_neigh)
         
         #when there is multiple neighbors with max values choose the best neighbor randomly 
         best_neigh = random.choice(max_neigh)   
-        print("The best neighor randomly selected", best_neigh)
+        #print("The best neighor randomly selected", best_neigh)
         
         new_beliefs[v] = current_beliefs[best_neigh]
-        print("New beliefs of node", v, "are", new_beliefs[v])
+        #print("New beliefs of node", v, "are", new_beliefs[v])
     return new_beliefs
 
 
@@ -350,7 +372,7 @@ def learning_step_bit_majority(G, beliefs, true_value):
 
 
 
-def learn(ini_beliefs, learning_step, true_value, steps = 10):
+def learn(G, ini_beliefs, learning_step, true_value, steps = 10):
     '''Runs the simulation, takes the list of inital beliefs and updates each bit based on the learning strategy
     #Parameters 
     inital_beliefs: The inital beliefs of each agent before the simulation
@@ -433,14 +455,14 @@ def plot_beliefs_correct(list_of_beliefs, true_value):
     for steps_beliefs in current_beliefs: #gives me a dict of all beliefs in all steps 
         #print(steps_beliefs) #steps_beliefs gives me the keys
         total = 0
-        for v in G.node():
+        for v in steps_beliefs.keys():
             #print(v, steps_beliefs[v])
             if steps_beliefs[v] == true_value:
                 #print ("The list are equal") 
                 total += 1
             #else:
              #   print ("The list aren't equal")
-        frac_nodes_one = (total) / (len(G))
+        frac_nodes_one = (total) / (len(steps_beliefs))
          #append the fraction of nodes that have same string
         y.append(frac_nodes_one) 
         #print(y)
@@ -452,7 +474,7 @@ def plot_beliefs_correct(list_of_beliefs, true_value):
     for spine in ax.spines.values():
         spine.set_visible(True)
     #plt.xlim([0, steps]) 
-    #plt.ylim([0, 1])
+    plt.ylim([0, 1])
     plt.legend()
         
         
