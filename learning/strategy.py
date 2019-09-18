@@ -16,21 +16,14 @@ def find_neighbor_bit_mode(G, v, beliefs, bit):
     # Return value
     The most common belief (at the specified bit) among v and its neighbors or beliefs[v][bit] if there is a tie.
     '''
-    #for test
-    neighbors_bit_value = []
-    #include bit value of v in mode calculation
-    node_belief = beliefs[v]
+    neighbor_values = [beliefs[v][bit]]
+    next_belief = beliefs[v][bit]
+    neighbor_values += [beliefs[w][bit] for w in G.neighbors(v)]
     try:
-        neighbors_bit_value.append(node_belief[bit])
-    except TypeError:
-        print(node_belief)
-    for w in G.neighbors(v):
-        neighbors_bit_value.append(beliefs[w][bit])
-        try:
-            popular_val = mode(neighbors_bit_value)
-        except StatisticsError: 
-            popular_val = beliefs[v][bit]
-    return popular_val
+        next_belief = mode(neighbor_values)
+    except StatisticsError: 
+        pass
+    return next_belief
 
 def conform(G, beliefs, **kwargs):
     '''For all nodes in G, choose the most popular list of beliefs among neighbors 
