@@ -3,7 +3,9 @@ import random
 import unittest
 import unittest.mock as mock
 
-import learning
+import networkx as nx
+
+import noisy
 
 random_stub_index = 0
 random_stub = [
@@ -44,14 +46,23 @@ class TestLearning(unittest.TestCase):
         with mock.patch('random.uniform', mock_uniform):
             self.assertEqual(random.uniform(), 0.96142941)
             
-    def test_get_random_belief_bit(self):
-        with mock.patch('learning.np.random.uniform', mock_uniform):
-            bits = [
-                learning.get_random_belief_bit(0.4)
-                for x in range(10)]
-            self.assertEqual(
-                bits,
-                [0, 1, 0, 0, 1, 1, 0, 0, 1, 1])
+    def test_initial_beliefs(self):
+        G = nx.Graph()
+        G.add_nodes_from([0, 1, 2])
+        true_value = [1, 0, 1, 0, 1]
+        p_error = 0.5
+        with mock.patch('noisy.nprand.uniform', mock_uniform):
+            beliefs = noisy.initial_beliefs(G, true_value, p_error)
+        self.assertEqual(
+            beliefs,
+            {
+                0: [1, 1, 1, 1, 0],
+                1: [0, 0, 1, 1, 0],
+                2: [0, 1, 0, 0, 1]
+            }
+        )
+            
+        
     
 if __name__ == '__main__':
     unittest.main()
