@@ -195,7 +195,7 @@ def best_neighbor(G, beliefs, true_value, **kwargs):
 
 learning_step_best_neighbor = best_neighbor
 
-def local_majority(G, beliefs,**kwargs):
+def local_majority(G, beliefs, **kwargs):
     '''Update each node's beliefs based on its neighbors' beliefs
     # Params
     G: a Graph

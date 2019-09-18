@@ -20,7 +20,7 @@ def learn(G, initial_beliefs, learning_step, true_value, steps=10):
     #update the belief after each step
     for i in range(steps + 1):
         if i < steps:
-            current_beliefs = learning_step(G, current_beliefs, true_value) 
+            current_beliefs = learning_step(G, current_beliefs, true_value=true_value) 
             #need to pass a param that will call diff strategies
             beliefs.append(current_beliefs)
     return beliefs
