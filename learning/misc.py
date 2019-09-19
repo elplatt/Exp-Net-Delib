@@ -111,48 +111,7 @@ def plot_beliefs_bits(beliefs_list):
         spine.set_visible(True)
     #plt.xlim([0, steps]) 
     #plt.ylim([0, 1])
-    plt.legend()
-    
-def plot_beliefs_correct(list_of_beliefs, true_value):
-    '''Plots the fraction of nones that have the correct string of bits over time.
-    #Params 
-    list_of_beliefs: a list of dict, each element is a dict of beliefs at one step [{}]
-    true_value: the true string of bits
-    
-    #Return value
-    A plot with the fraction of nodes with the correct string of values
-    '''
-    
-    current_beliefs = list_of_beliefs #gives me a list of all the beliefs in all steps
-    
-    y = []
-    #print(y)
-    
-    for steps_beliefs in current_beliefs: #gives me a dict of all beliefs in all steps 
-        #print(steps_beliefs) #steps_beliefs gives me the keys
-        total = 0
-        for v in steps_beliefs.keys():
-            #print(v, steps_beliefs[v])
-            if steps_beliefs[v] == true_value:
-                #print ("The list are equal") 
-                total += 1
-            #else:
-             #   print ("The list aren't equal")
-        frac_nodes_one = (total) / (len(steps_beliefs))
-         #append the fraction of nodes that have same string
-        y.append(frac_nodes_one) 
-        #print(y)
-            
-    plt.plot(y, 'y-', alpha=0.4, linewidth=2)
-
-    #add spines to plot
-    ax = plt.gca()
-    for spine in ax.spines.values():
-        spine.set_visible(True)
-    #plt.xlim([0, steps]) 
-    plt.ylim([0, 1])
-    plt.legend()
-        
+    plt.legend()        
         
 def fraction_correct_bit(G, steps_beliefs, true_value, bit):
     '''Get the fraction of nodes that have same value in given bit
