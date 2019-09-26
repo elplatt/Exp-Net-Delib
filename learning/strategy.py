@@ -171,8 +171,12 @@ def best_neighbor(G, beliefs, true_value, **kwargs):
                     num_equal_bits += 1
             key_val_equal[w] = num_equal_bits
         
+        # If no neighbors, no change
+        if len(key_val_equal) == 0:
+            new_beliefs[v] = current_beliefs[v]
+            continue
+        
         #finds neighbors with max vals
-
         max_value = max(key_val_equal.values()) 
         max_neigh = [k for k, v in key_val_equal.items() if v == max_value]# getting all keys containing the `maximum`
   
@@ -180,9 +184,9 @@ def best_neighbor(G, beliefs, true_value, **kwargs):
         if max_value <= current_equal_bits:
             new_beliefs[v] = current_beliefs[v]
         else:    
-          #when there is multiple neighbors with max values choose the best neighbor randomly 
-          best_neigh = random.choice(max_neigh)
-          new_beliefs[v] = current_beliefs[best_neigh]
+            #when there is multiple neighbors with max values choose the best neighbor randomly 
+            best_neigh = random.choice(max_neigh)
+            new_beliefs[v] = current_beliefs[best_neigh]
         
     return new_beliefs
 
