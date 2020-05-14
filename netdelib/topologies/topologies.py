@@ -76,7 +76,7 @@ def get_random_groups(N, M, D):
     # Returns
     A list of D elements.
     Each element is a list as returned by get_random_stage_groups().
-    
     """
     groups = sum([get_random_stage_groups(N, M, i) for i in range(D)], [])
     return groups
+
