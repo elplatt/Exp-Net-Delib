@@ -11,7 +11,7 @@ def beliefs_correct(belief_list, true_value):
     for beliefs in belief_list: #gives me a dict of all beliefs in all steps 
         total = 0
         for v in beliefs.keys():
-            if beliefs[v] == true_value:
+            if tuple(beliefs[v]) == tuple(true_value):
                 total += 1
         frac_correct = total / (len(beliefs))
         y.append(frac_correct)
