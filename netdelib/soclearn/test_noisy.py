@@ -5,7 +5,7 @@ import unittest.mock as mock
 
 import networkx as nx
 
-import noisy
+from models.generated import *
 
 random_stub_index = 0
 random_stub = [
@@ -57,8 +57,8 @@ class TestLearning(unittest.TestCase):
         G.add_nodes_from([0, 1, 2])
         true_value = [1, 0, 1, 0, 1]
         p_error = 0.5
-        with mock.patch('noisy.nprand.uniform', mock_uniform):
-            beliefs = noisy.initial_beliefs(G, true_value, p_error)
+        with mock.patch('models.generated.nprand.uniform', mock_uniform):
+            beliefs = initial_beliefs_noisy(G, true_value, p_error)
         self.assertEqual(beliefs, noisy_beliefs)
             
         
