@@ -132,8 +132,52 @@ def random_neighbor_list(G, beliefs, **kwargs):
 rand_neighbor_list = random_neighbor_list
 
 
+def best_neighbor_objective(G, beliefs, objective, **kwargs):
+    '''For each node, chose the belief among neighbors that maximizes objective.
+    
+    #Params 
+    G: a Graph
+    beliefs: a dict mapping nodes of G to lists of 1s and 0s.
+    objective: a function mapping a belief to a number.
+    
+    #Return
+     A list of beliefs chosen among v's neighbors 
+    '''
+    # Dict to contain new beliefs
+    new_beliefs = {}
+    
+    # Create a copy of current beliefs and ensure tuples
+    current_beliefs =dict(
+        (k, tuple(v))
+        for k, v in beliefs.items())
+    
+    # Iterates through each node
+    for v in G.nodes():
+        
+        # Evaluate objective function for all neighbors and current node
+        neighbor_values = dict(
+            (current_beliefs[w], objective(current_beliefs[w]))
+            for w in G.neighbors(v))
+        node_value = objective(current_beliefs[v])
+        neighbor_values[v] = node_value
+
+        # Find belief that maximizes the objective function
+        # Create a list in case there are ties
+        max_value = max(neighbor_values.values())
+        best_beliefs = [belief for belief, value in neighbor_values.items() if value == max_value]
+        
+        # Only change belief if it can be improved
+        if max_value == node_value:
+            new_beliefs[v] = current_beliefs[v]
+            continue
+        
+        # Select one value randomly from the winners
+        new_beliefs[v] = random.choice(best_beliefs)
+        
+    return new_beliefs
+
 def best_neighbor(G, beliefs, true_value, **kwargs):
-    '''For node v, chose the neighbor with bit string closest to the true value and copy it. 
+    '''For each node, chose the neighbor with bit string closest to the true value and copy it. 
     
     #Params 
     G: a Graph
@@ -143,7 +187,7 @@ def best_neighbor(G, beliefs, true_value, **kwargs):
     which one has the closest list to the true value 
     
     #Return
-     A list of belief chosen among v's neighbors closest to the true value
+     A dict mapping nodes of G to their new beliefs.
     '''
     new_beliefs = {} #empty dict for new beliefs
     

@@ -151,6 +151,13 @@ class TestLearning(unittest.TestCase):
     def test_best_neighbor(self):
         next = strategy.best_neighbor(G, initial, true_value)
         self.assertEqual(next, next_best_neighbor)
+        
+    def test_best_neighbor_objective(self):
+        obj = lambda x: sum(
+            1 for i, v in enumerate(true_value)
+            if x[i] == v)
+        next = strategy.best_neighbor_objective(G, initial, obj)
+        self.assertEqual(next, next_best_neighbor)
 
     def test_local_majority(self):
         next = strategy.local_majority(G, initial)
