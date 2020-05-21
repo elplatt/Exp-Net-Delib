@@ -132,7 +132,7 @@ def random_neighbor_list(G, beliefs, **kwargs):
 rand_neighbor_list = random_neighbor_list
 
 
-def best_neighbor_objective(G, beliefs, objective, **kwargs):
+def best_neighbor(G, beliefs, objective, **kwargs):
     '''For each node, chose the belief among neighbors that maximizes objective.
     
     #Params 
@@ -175,66 +175,6 @@ def best_neighbor_objective(G, beliefs, objective, **kwargs):
         new_beliefs[v] = random.choice(best_beliefs)
         
     return new_beliefs
-
-def best_neighbor(G, beliefs, true_value, **kwargs):
-    '''For each node, chose the neighbor with bit string closest to the true value and copy it. 
-    
-    #Params 
-    G: a Graph
-    beliefs: a dict mapping nodes of G to lists of 1s and 0s.
-    
-    true_value: The list of true values. Each nodes needs to look at all its neighbors and see
-    which one has the closest list to the true value 
-    
-    #Return
-     A dict mapping nodes of G to their new beliefs.
-    '''
-    new_beliefs = {} #empty dict for new beliefs
-    
-    current_beliefs = dict(beliefs) #starts a dict of nodes and their list of beliefs//argument beliefs
-    # Ensure tuples
-    for k, v in current_beliefs.items():
-        current_beliefs[k] = tuple(v)
-    
-    #determine number of bit
-    num_bit = len(next(iter(beliefs.values())))
-        
-    for v in G.nodes(): #iterates through each node
-        
-        current_equal_bits = len([
-            i for i, vi in enumerate(current_beliefs[v])
-            if current_beliefs[v][i] == true_value[i]])
-        
-        list_winners = [] #keeps the neighbors with the highest num of equal value to the true value
-        key_val_equal = {} #keeps num of neigh of node v with equal num of bits to true value
-        for w in G.neighbors(v):
-            num_equal_bits = 0 #records num of bits in each neigh that have same val as true_val.
-        
-            for bit in range(num_bit):
-                if current_beliefs[w][bit] == true_value[bit]: 
-                    num_equal_bits += 1
-            key_val_equal[w] = num_equal_bits
-        
-        # If no neighbors, no change
-        if len(key_val_equal) == 0:
-            new_beliefs[v] = current_beliefs[v]
-            continue
-        
-        #finds neighbors with max vals
-        max_value = max(key_val_equal.values()) 
-        max_neigh = [k for k, v in key_val_equal.items() if v == max_value]# getting all keys containing the `maximum`
-  
-        # Only select a new balue if it beats current
-        if max_value <= current_equal_bits:
-            new_beliefs[v] = current_beliefs[v]
-        else:    
-            #when there is multiple neighbors with max values choose the best neighbor randomly 
-            best_neigh = random.choice(max_neigh)
-            new_beliefs[v] = current_beliefs[best_neigh]
-        
-    return new_beliefs
-
-learning_step_best_neighbor = best_neighbor
 
 def local_majority(G, beliefs, **kwargs):
     '''Update each node's beliefs based on its neighbors' beliefs
