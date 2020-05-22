@@ -25,6 +25,7 @@ def run_discgen_trial(
     A list of dictionaries, one for each time step.
     Each dictionary maps collaborator ids to belief states.
     """
+    objective = lambda belief: sum([1 for index, true_bit in enumerate(true_value) if belief[index] == true_bit])
     beliefs_stages = []
     for stage in range(stages):
         if stage == 0:
@@ -39,6 +40,6 @@ def run_discgen_trial(
 
         # Run several learning steps and add beliefs at each step to beliefs_stages
         # The first element of the result is just the initial belief, which is already in beliefs_stages
-        beliefs_list = slearn.learn(G, beliefs_stages[-1], learning_strategy, true_value, steps)
+        beliefs_list = slearn.learn(G, beliefs_stages[-1], learning_strategy, objective, steps)
         beliefs_stages += beliefs_list[1:]
     return beliefs_stages
