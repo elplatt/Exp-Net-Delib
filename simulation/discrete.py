@@ -1,11 +1,11 @@
 import netdelib.soclearn as slearn
 import netdelib.soclearn.models.generated as slgen
 
-def run_discgen_trial(
+def run_discrete_trial(
     factory,
-    p_error,
     learning_strategy,
-    true_value,
+    initial_beliefs,
+    objective,
     N,
     M,
     stages,
@@ -16,8 +16,8 @@ def run_discgen_trial(
     Parameters:
     factory: network factory
     learning strategy: learning strategy to simulate in topology
-    intial beliefs are generated inside the topology: prarms (G, true_value, p_error)
-    true_value: the ground truth 
+    intial beliefs: dict of initial beliefs for each agent
+    objective: objective function to be maximized 
     stages: the number of stages in each trial
     steps: the number of learning steps per stage
     
@@ -25,13 +25,12 @@ def run_discgen_trial(
     A list of dictionaries, one for each time step.
     Each dictionary maps collaborator ids to belief states.
     """
-    objective = lambda belief: sum([1 for index, true_bit in enumerate(true_value) if belief[index] == true_bit])
     beliefs_stages = []
     for stage in range(stages):
         if stage == 0:
             # Create new network and initial beliefs at stage 0
             G = factory.create(stage)
-            beliefs = slgen.initial_beliefs_noisy(G, true_value, p_error=p_error)
+            beliefs = initial_beliefs
             beliefs_stages.append(beliefs)
         else:
             # At later stages, only create new network if factory.stage_graphs is True

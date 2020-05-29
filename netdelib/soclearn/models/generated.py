@@ -5,9 +5,10 @@ from numpy import random as nprand
 from statistics import mode, StatisticsError
 
 
-def initial_beliefs(G, true_value, p_error):
+def initial_beliefs(N, true_value, p_error):
     '''Generates a list of beliefs with a probability error 
-    #Params 
+    #Params
+    N: The number of agents
     true_value: A list of true bits
     p_error: probability an error 
     
@@ -17,7 +18,7 @@ def initial_beliefs(G, true_value, p_error):
     
     beliefs = {}
     # Loop through nodes, (sorted guarantees same order, helps testing)
-    for v in sorted(G.nodes()):
+    for v in range(N):
         # Calculate which bits have errors for this node
         errors = [
             1 if nprand.uniform() < p_error

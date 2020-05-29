@@ -58,7 +58,7 @@ class TestLearning(unittest.TestCase):
         true_value = [1, 0, 1, 0, 1]
         p_error = 0.5
         with mock.patch('models.generated.nprand.uniform', mock_uniform):
-            beliefs = initial_beliefs_noisy(G, true_value, p_error)
+            beliefs = initial_beliefs_noisy(3, true_value, p_error)
         self.assertEqual(beliefs, noisy_beliefs)
             
         
