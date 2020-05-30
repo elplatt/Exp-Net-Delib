@@ -1,0 +1,15 @@
+[abm]
+N = 100
+M = 5
+runs = 10
+stages = 25
+steps = 1
+p_error = 0.4
+bit_count = 7
+K = 3
+
+[networks]
+small_world_k = 3
+small_world_a = 0.1
+barabasi_albert_m = 2
+
