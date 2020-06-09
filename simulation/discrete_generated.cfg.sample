@@ -8,7 +8,10 @@ bit_count = 7
 p_error = 0.4
 
 [networks]
+enabled = Complete,Pref. Attach,Small World,Long Path,Random Group
 small_world_k = 4
 small_world_a = 0.1
 barabasi_albert_m = 2
 
+[strategies]
+enabled = Best Neighbor,Conform,Local Majority
