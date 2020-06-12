@@ -198,3 +198,56 @@ def local_majority(G, beliefs, **kwargs):
     return new_beliefs
 
 learning_step_bit_majority = local_majority
+
+def individual(G, beliefs, objective, **kwargs):
+    '''For each node, perform a single step of hill-climbing to find new belief.
+    
+    #Params 
+    G: a Graph
+    beliefs: a dict mapping nodes of G to lists of 1s and 0s.
+    objective: a function mapping a belief to a number.
+    
+    #Return
+     A list of beliefs chosen among v's neighbors 
+    '''
+    # Dict to contain new beliefs
+    new_beliefs = {}
+    
+    # Create a copy of current beliefs and ensure tuples
+    current_beliefs =dict(
+        (k, tuple(v))
+        for k, v in beliefs.items())
+    
+    # Iterates through each node
+    for v in G.nodes():
+
+        # Find current value
+        belief = current_beliefs[v]
+        current_value = objective(belief)
+        
+        # Try improving belief by hill-climbing
+        trial_values = {}
+        for bit in range(len(belief)):
+            trial_belief = tuple(
+                belief[i] if i != bit
+                else 1 - belief[i]
+                for i in range(len(belief)))
+            trial_values[tuple(trial_belief)] = objective(trial_belief)
+
+        # Find beliefs that maximize the objective function
+        # Create a list in case there are ties
+        max_value = max(trial_values.values())
+        best_beliefs = [belief for belief, value in trial_values.items() if value == max_value]
+        
+        # Only change belief if it can be improved
+        if max_value <= current_value:
+            new_beliefs[v] = current_beliefs[v]
+            continue
+        
+        # Select one value randomly from the winners
+        if len(best_beliefs) == 1:
+            new_beliefs[v] = best_beliefs[0]
+        else:
+            new_beliefs[v] = random.choice(best_beliefs)
+        
+    return new_beliefs

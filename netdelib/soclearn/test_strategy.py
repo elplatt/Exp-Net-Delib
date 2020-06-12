@@ -99,6 +99,28 @@ next_local_majority = {
     7: (1, 0, 1, 0, 1, 0)
 }
 
+initial_individual = {
+    0: (1, 0, 1, 0, 1, 0),
+    1: (0, 0, 1, 0, 1, 0),
+    2: (1, 1, 1, 0, 1, 0),
+    3: (0, 1, 1, 0, 1, 0),
+    4: (0, 1, 1, 0, 1, 0),
+    5: (1, 0, 1, 0, 1, 0),
+    6: (1, 0, 1, 0, 1, 0),
+    7: (1, 0, 1, 0, 1, 0)
+}
+
+next_individual = {
+    0: (1, 0, 1, 0, 1, 0),
+    1: (1, 0, 1, 0, 1, 0),
+    2: (1, 0, 1, 0, 1, 0),
+    3: (0, 0, 1, 0, 1, 0),
+    4: (1, 1, 1, 0, 1, 0),
+    5: (1, 0, 1, 0, 1, 0),
+    6: (1, 0, 1, 0, 1, 0),
+    7: (1, 0, 1, 0, 1, 0)
+}
+
 def mock_uniform(low=0, high=1, size=1):
     global random_stub_index
     next = random_stub[random_stub_index]
@@ -158,6 +180,14 @@ class TestLearning(unittest.TestCase):
     def test_local_majority(self):
         next = strategy.local_majority(G, initial)
         self.assertEqual(next, next_local_majority)
+        
+    def test_individual(self):
+        obj = lambda x: sum(
+            1 for i, v in enumerate(true_value)
+            if x[i] == v)
+        with mock.patch('strategy.random.choice', mock_choice):
+            next = strategy.individual(G, initial_individual, obj)
+        self.assertEqual(next, next_individual)
 
     
 if __name__ == '__main__':
