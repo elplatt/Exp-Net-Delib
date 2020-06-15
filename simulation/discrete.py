@@ -9,7 +9,8 @@ def run_discrete_trial(
     N,
     M,
     stages,
-    steps
+    steps,
+    individual=False
 ):
     """Run a single trial
     
@@ -20,6 +21,7 @@ def run_discrete_trial(
     objective: objective function to be maximized 
     stages: the number of stages in each trial
     steps: the number of learning steps per stage
+    individual: whether to perform individual learning before each stage
     
     Returns
     A list of dictionaries, one for each time step.
@@ -39,6 +41,6 @@ def run_discrete_trial(
 
         # Run several learning steps and add beliefs at each step to beliefs_stages
         # The first element of the result is just the initial belief, which is already in beliefs_stages
-        beliefs_list = slearn.learn(G, beliefs_stages[-1], learning_strategy, objective, steps)
+        beliefs_list = slearn.learn(G, beliefs_stages[-1], learning_strategy, objective, steps, individual=individual)
         beliefs_stages += beliefs_list[1:]
     return beliefs_stages

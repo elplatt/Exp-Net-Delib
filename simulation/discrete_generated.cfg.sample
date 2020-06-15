@@ -14,4 +14,5 @@ small_world_a = 0.1
 barabasi_albert_m = 2
 
 [strategies]
+individual = False
 enabled = Best Neighbor,Conform,Local Majority
