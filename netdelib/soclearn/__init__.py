@@ -1,4 +1,4 @@
-import strategy as slstrat
+from . import strategy as slstrat
 
 def learn(G, initial_beliefs, learning_step, objective, steps=10, individual=False):
     '''Runs the simulation, takes the list of inital beliefs and updates each bit based on the learning strategy.
