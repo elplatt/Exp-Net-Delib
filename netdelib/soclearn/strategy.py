@@ -25,12 +25,13 @@ def find_neighbor_bit_mode(G, v, beliefs, bit):
         pass
     return next_belief
 
-def conform(G, beliefs, **kwargs):
+def conform(G, beliefs, sample=None, **kwargs):
     '''For all nodes in G, choose the most popular list of beliefs among neighbors 
 
     #Params 
     G: a Graph
     beliefs: a dict mapping nodes of G to lists of 1s and 0s.
+    sample: None (default) or the number of neighbors to random
     
     # Return value
     A dictionary mapping nodes to their new beliefs.
@@ -53,11 +54,15 @@ def conform(G, beliefs, **kwargs):
     temp_val = new_lists #assing new lists to temp_val. For testing purposes.
     
     for v in temp_val.keys(): #for each node v in temp_val find the mode using the try/except block. if there's more than one mode, keep the original list of beliefs
+        # Sample neighbors if specified
+        candidates = temp_val[v]
+        if sample is not None and len(candidates) > sample:
+            candidates = random.sample(temp_val[v], sample)
         try:
-            popular_val = mode(temp_val[v])
+            next_belief = mode(candidates)
         except StatisticsError: 
-            popular_val = current_beliefs[v]
-        new_beliefs[v] = tuple(popular_val)
+            next_belief = current_beliefs[v]
+        new_beliefs[v] = tuple(next_belief)
     return new_beliefs
 
 most_popular_list = conform
@@ -132,13 +137,14 @@ def random_neighbor_list(G, beliefs, **kwargs):
 rand_neighbor_list = random_neighbor_list
 
 
-def best_neighbor(G, beliefs, objective, **kwargs):
+def best_neighbor(G, beliefs, objective, sample=None, **kwargs):
     '''For each node, chose the belief among neighbors that maximizes objective.
     
     #Params 
     G: a Graph
     beliefs: a dict mapping nodes of G to lists of 1s and 0s.
     objective: a function mapping a belief to a number.
+    sample: None (default) or the number of neighbors to random
     
     #Return
      A list of beliefs chosen among v's neighbors 
@@ -147,17 +153,22 @@ def best_neighbor(G, beliefs, objective, **kwargs):
     new_beliefs = {}
     
     # Create a copy of current beliefs and ensure tuples
-    current_beliefs =dict(
+    current_beliefs = dict(
         (k, tuple(v))
         for k, v in beliefs.items())
     
     # Iterates through each node
     for v in G.nodes():
         
+        # Sample
+        neighbors = list(G.neighbors(v))
+        if sample is not None and len(neighbors) > sample:
+            neighbors = random.sample(neighbors, sample)
+        
         # Evaluate objective function for all neighbors and current node
         neighbor_values = dict(
             (current_beliefs[w], objective(current_beliefs[w]))
-            for w in G.neighbors(v))
+            for w in neighbors)
         node_value = objective(current_beliefs[v])
         neighbor_values[v] = node_value
 
@@ -176,25 +187,37 @@ def best_neighbor(G, beliefs, objective, **kwargs):
         
     return new_beliefs
 
-def local_majority(G, beliefs, **kwargs):
-    '''Update each node's beliefs based on its neighbors' beliefs
+def local_majority(G, beliefs, sample=None, **kwargs):
+    '''Update each node's belief by taking a majority vote among neighbors
+    for each bit of the belief. In the case of a tie, the bit remains unchnaged.
+    
     # Params
     G: a Graph
     beliefs: a dict mapping nodes of G to lists of 1s and 0s.
-    true_value: Added for consistency (Not use)
+    sample: None (default) or the number of neighbors to randomly sample.
     
     # Return value
     Dict of new beliefs for v
     '''
 
     new_beliefs = {}
+    # Find new belief for each node
     for v in G.nodes():
-        num_beliefs = []
-        #call function 
+        # Sample
+        neighbors = list(G.neighbors(v))
+        if sample is not None and len(neighbors) > sample:
+            neighbors = random.sample(neighbors, sample)
+        # Initialize bit
+        new_bits = []
         for bit in range(len(beliefs[v])):
-            new_belief = find_neighbor_bit_mode(G, v, beliefs, bit)
-            num_beliefs.append(new_belief)
-        new_beliefs[v] = tuple(num_beliefs)
+            neighbor_bits = [beliefs[v][bit]]
+            neighbor_bits += [beliefs[w][bit] for w in neighbors]
+            try:
+                next_bit = mode(neighbor_bits)
+            except StatisticsError:
+                next_bit = beliefs[v][bit]
+            new_bits.append(next_bit)
+        new_beliefs[v] = tuple(new_bits)
     return new_beliefs
 
 learning_step_bit_majority = local_majority

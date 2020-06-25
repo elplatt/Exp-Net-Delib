@@ -10,7 +10,8 @@ def run_discrete_trial(
     M,
     stages,
     steps,
-    individual=False
+    individual=False,
+    sample=None
 ):
     """Run a single trial
     
@@ -41,6 +42,6 @@ def run_discrete_trial(
 
         # Run several learning steps and add beliefs at each step to beliefs_stages
         # The first element of the result is just the initial belief, which is already in beliefs_stages
-        beliefs_list = slearn.learn(G, beliefs_stages[-1], learning_strategy, objective, steps, individual=individual)
+        beliefs_list = slearn.learn(G, beliefs_stages[-1], learning_strategy, objective, steps, individual=individual, sample=sample)
         beliefs_stages += beliefs_list[1:]
     return beliefs_stages
