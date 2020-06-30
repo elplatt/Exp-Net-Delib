@@ -5,7 +5,8 @@ import unittest.mock as mock
 
 import networkx as nx
 
-from models.generated import *
+import soclearn
+import soclearn.strategy as strategy
 
 random_stub_index = 0
 random_stub = [
@@ -30,17 +31,53 @@ random_stub = [
     0.19252083, 0.0024075 , 0.79403319, 0.59557104, 0.13826026,
     0.68459786, 0.02798459, 0.33419036, 0.53432999, 0.28558709]
 
+random_choice = [3, 0, 4, 5, 2, 1]
+
+G = nx.Graph()
+G.add_edges_from([
+    (0, 1), (0, 2), (0, 3), (0, 4),
+    (7, 3), (7, 4), (7, 5), (7, 6)
+])
+
+true_value = [1, 0, 1, 0, 1, 0]
+
+initial = {
+    0: [0, 0, 1, 0, 1, 0],
+    1: [1, 1, 1, 0, 1, 0],
+    2: [1, 0, 0, 0, 1, 0],
+    3: [1, 0, 1, 1, 1, 0],
+    4: [1, 0, 1, 0, 0, 0],
+    5: [1, 0, 1, 0, 1, 1],
+    6: [1, 0, 1, 0, 1, 1],
+    7: [1, 0, 1, 0, 1, 0]
+}
+
+next_local_majority = {
+    0: (1, 0, 1, 0, 1, 0),
+    1: (1, 1, 1, 0, 1, 0),
+    2: (1, 0, 0, 0, 1, 0),
+    3: (1, 0, 1, 0, 1, 0),
+    4: (1, 0, 1, 0, 1, 0),
+    5: (1, 0, 1, 0, 1, 1),
+    6: (1, 0, 1, 0, 1, 1),
+    7: (1, 0, 1, 0, 1, 0)
+}
+
 def mock_uniform(low=0, high=1, size=1):
     global random_stub_index
     next = random_stub[random_stub_index]
-    random_stub_index += 1
+    random_stub_index = (random_stub_index + 1) % len(random_stub)
     return next
 
-noisy_beliefs = {
-    0: [1, 1, 1, 1, 0],
-    1: [0, 0, 1, 1, 0],
-    2: [0, 1, 0, 0, 1]
-    }
+def mock_choice(l):
+    global random_stub_index
+    if len(l) == 1:
+        return l[0]
+    choice_index = random_choice[random_stub_index % len(random_choice)]
+    e = l[choice_index % len(l)]
+    random_stub_index = (random_stub_index + 1) % len(random_stub)
+    return e
+
 
 class TestLearning(unittest.TestCase):
     
@@ -48,20 +85,11 @@ class TestLearning(unittest.TestCase):
         global random_stub_index
         random_stub_index = 0
     
-    def test_random(self):
-        with mock.patch('random.uniform', mock_uniform):
-            self.assertEqual(random.uniform(), 0.96142941)
-            
-    def test_initial_beliefs(self):
-        G = nx.Graph()
-        G.add_nodes_from([0, 1, 2])
-        true_value = [1, 0, 1, 0, 1]
-        p_error = 0.5
-        with mock.patch('models.generated.nprand.uniform', mock_uniform):
-            beliefs = initial_beliefs_noisy(3, true_value, p_error)
-        self.assertEqual(beliefs, noisy_beliefs)
-            
-        
+    def test_learn(self):
+        next = soclearn.learn(G, initial, strategy.local_majority, true_value, steps=1)
+        self.assertEqual(next, [initial, next_local_majority])
+    
+
     
 if __name__ == '__main__':
     unittest.main()

@@ -31,7 +31,7 @@ def conform(G, beliefs, sample=None, **kwargs):
     #Params 
     G: a Graph
     beliefs: a dict mapping nodes of G to lists of 1s and 0s.
-    sample: None (default) or the number of neighbors to random
+    sample: None (default) or the number of neighbors to random.
     
     # Return value
     A dictionary mapping nodes to their new beliefs.

@@ -5,7 +5,7 @@ import unittest.mock as mock
 
 import networkx as nx
 
-import strategy
+from soclearn import strategy
 
 random_stub_index = 0
 random_stub = [
@@ -161,12 +161,12 @@ class TestLearning(unittest.TestCase):
         self.assertEqual(next, next_conform)
     
     def test_random_neighbor_bit(self):
-        with mock.patch('strategy.random.choice', mock_choice):
+        with mock.patch('soclearn.strategy.random.choice', mock_choice):
             next = strategy.random_neighbor_bit(G, initial)
         self.assertEqual(next[0], next_random_neighbor_bit[0])
     
     def test_random_neighbor_list(self):
-        with mock.patch('strategy.random.choice', mock_choice):
+        with mock.patch('soclearn.strategy.random.choice', mock_choice):
             next = strategy.random_neighbor_list(G, initial)
         self.assertEqual(next, next_random_neighbor_list)
             
@@ -185,7 +185,7 @@ class TestLearning(unittest.TestCase):
         obj = lambda x: sum(
             1 for i, v in enumerate(true_value)
             if x[i] == v)
-        with mock.patch('strategy.random.choice', mock_choice):
+        with mock.patch('soclearn.strategy.random.choice', mock_choice):
             next = strategy.individual(G, initial_individual, obj)
         self.assertEqual(next, next_individual)
 
