@@ -99,8 +99,54 @@ class RandomFactory(NetworkFactory):
     
     def __init__(self, N, M, p):
         super(RandomFactory, self).__init__(N, M, False)
-        self.p
+        self.p = p
         
     def create(self, stage):
         return nx.erdos_renyi_graph(N, self.p)
 
+class LFRFactory(NetworkFactory):
+    """Factory class for LFR networks.
+    
+    Constructor Params
+    N: Number of participants
+    M: Number of participants per group
+    tau1: Power law exponent for the degree distribution of the created graph. This value must be strictly greater than one.
+    tau2: Power law exponent for the community size distribution in the created graph. This value must be strictly greater than one.
+    mu: (0<=mu<=1) mixing parameter.
+    """
+    
+    def __init__(self, N, M, tau1, tau2, mu):
+        super(LFRFactory, self).__init__(N, M, false)
+        self.tau1 = tau1
+        self.tau2 = tau2
+        self.mu = mu
+        
+    def create(self, stage):
+        degree = self.M - 1
+        return nx.LFR_benchmark_graph(
+            self.N, self.tau1, self.tau2, self.mu, average_degree=degree)
+    
+class StochasticBlockFactory(NetworkFactory):
+    """Factory class for stochastic block model networks.
+    
+    Constructor Params
+    N: Number of participants
+    M: Number of participants per group
+    """
+    
+    def __init__(self, N, M):
+        super(StochasticBlockFactory, self).__init__(N, M, false)
+    
+    def create(self, stage):
+        num_blocks = int(self.N / self.M)
+        within_density = (self.M - 2) / self.M
+        between_density = 1 / (self.N - self.M)
+        sizes = [self.M for i in range(num_blocks)]
+        density = [[
+                within_density if s == t else between_density
+                for s in range(num_blocks)]
+            for r in range(num_blocks)
+        ]
+        return nx.stochastic_block_model(sizes, density)
+    
+    
