@@ -1,4 +1,4 @@
-from . import strategy
+from . import strategy as slstrat
 
 MODE_ALL = 1
 MODE_FALLBACK = 2
@@ -7,10 +7,10 @@ def learn(
         G,
         initial_beliefs,
         learning_step,
-        objective,
+        objective=None,
         steps=10,
         individual=False,
-        individual_mode='all',
+        individual_mode=MODE_ALL,
         sample=None):
     '''Runs the simulation, takes the list of inital beliefs and updates each bit based on the learning strategy.
 
@@ -28,14 +28,16 @@ def learn(
     A list of agent's beliefs over time
     '''
     
-    current_beliefs = dict(initial_beliefs) #starts a dict of nodes and their list of beliefs//
+    # Initialize current belief dict with initial beliefs
+    current_beliefs = dict((k, tuple(v)) for k, v in initial_beliefs.items())
     
-    beliefs = [current_beliefs]  #makes the dict into a list. 
+    # Create a list of belief dicts over time
+    beliefs = [current_beliefs]
     
     nodes = list(current_beliefs.keys())
     num_bit = len(current_beliefs[nodes[0]])
   
-    #update the belief after each step
+    # Repeatedly update beliefs
     for i in range(steps):
         if individual:
             # Perform individual learning on all nodes
@@ -48,11 +50,14 @@ def learn(
         social_beliefs = learning_step(G, current_beliefs, objective=objective, sample=sample)
         if individual and individual_mode == MODE_FALLBACK:
             # Only fall back to individual belief if social learning is not an improvement
-            current_beliefs = [
-                social if objective(social) > objective(current_beliefs[v])
-                else individual_beliefs[v]
-                for v, social in social_beliefs.items()
-            ]
+            next_beliefs = dict()
+            for v in social_beliefs.keys():
+                if social_beliefs[v] == current_beliefs[v]:
+                    # No change from social learning, fall back to individual
+                    next_beliefs[v] = individual_beliefs[v]
+                else:
+                    next_beliefs[v] = social_beliefs[v]
+            current_beliefs = next_beliefs
         else:
             # Adopt all beliefs generated from social learning
             current_beliefs = social_beliefs

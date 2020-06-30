@@ -63,6 +63,17 @@ next_local_majority = {
     7: (1, 0, 1, 0, 1, 0)
 }
 
+next_conform_fallback = {
+    0: (1, 0, 1, 0, 1, 0),
+    1: (1, 0, 1, 0, 1, 0),
+    2: (1, 0, 1, 0, 1, 0),
+    3: (1, 0, 1, 0, 1, 0),
+    4: (1, 0, 1, 0, 1, 0),
+    5: (1, 0, 1, 0, 1, 0),
+    6: (1, 0, 1, 0, 1, 0),
+    7: (1, 0, 1, 0, 1, 1)
+}
+
 def mock_uniform(low=0, high=1, size=1):
     global random_stub_index
     next = random_stub[random_stub_index]
@@ -86,8 +97,19 @@ class TestLearning(unittest.TestCase):
         random_stub_index = 0
     
     def test_learn(self):
-        next = soclearn.learn(G, initial, strategy.local_majority, true_value, steps=1)
-        self.assertEqual(next, [initial, next_local_majority])
+        obj = lambda x: sum(
+            1 for i, v in enumerate(true_value)
+            if x[i] == v)
+        next = soclearn.learn(G, initial, strategy.local_majority, steps=1)
+        self.assertEqual(next[-1], next_local_majority)
+    
+    def test_individual_fallback(self):
+        obj = lambda x: sum(
+            1 for i, v in enumerate(true_value)
+            if x[i] == v)
+        next = soclearn.learn(
+            G, initial, strategy.conform, objective=obj, steps=1, individual=True, individual_mode=soclearn.MODE_FALLBACK)
+        self.assertEqual(next[-1], next_conform_fallback)
     
 
     

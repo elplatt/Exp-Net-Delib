@@ -11,6 +11,7 @@ def run_discrete_trial(
     stages,
     steps,
     individual=False,
+    individual_mode=slearn.MODE_ALL,
     sample=None
 ):
     """Run a single trial
