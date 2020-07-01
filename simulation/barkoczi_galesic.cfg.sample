@@ -1,0 +1,20 @@
+[abm]
+N = 100
+runs = 10
+steps = 20
+bit_count = 15
+K = 6
+nk_exponent = 8
+
+[networks]
+# Network topologies are currently hardcoded
+# enabled = Complete,Lattice
+lattice_k = 18
+
+[strategies]
+sample = 3
+individual = True
+# individual_mode: 1=MODE_ALL, 2=MODE_FALLBACK
+individual_mode = 2
+# Strategies are currently hardcoded
+# enabled = Best Neighbor,Conform
