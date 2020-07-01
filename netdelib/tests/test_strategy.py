@@ -32,6 +32,8 @@ random_stub = [
 
 random_choice = [3, 0, 4, 5, 2, 1]
 
+randint_stub_index = 0
+
 G = nx.Graph()
 G.add_edges_from([
     (0, 1), (0, 2), (0, 3), (0, 4),
@@ -121,6 +123,28 @@ next_individual = {
     7: (1, 0, 1, 0, 1, 0)
 }
 
+initial_individual_bit = {
+    0: (0, 0, 0, 0, 0, 0),
+    1: (0, 0, 0, 0, 0, 0),
+    2: (1, 1, 1, 1, 1, 1),
+    3: (1, 1, 1, 1, 1, 1),
+    4: (0, 1, 0, 1, 0, 1),
+    5: (0, 1, 0, 1, 0, 1),
+    6: (1, 0, 1, 0, 1, 0),
+    7: (1, 0, 1, 0, 1, 0)
+}
+
+next_individual_bit = {
+    0: (1, 0, 0, 0, 0, 0),
+    1: (0, 0, 0, 0, 0, 0),
+    2: (1, 1, 1, 1, 1, 1),
+    3: (1, 1, 1, 0, 1, 1),
+    4: (0, 1, 0, 1, 1, 1),
+    5: (0, 1, 0, 1, 0, 0),
+    6: (1, 0, 1, 0, 1, 0),
+    7: (1, 0, 1, 0, 1, 0)
+}
+
 def mock_uniform(low=0, high=1, size=1):
     global random_stub_index
     next = random_stub[random_stub_index]
@@ -136,6 +160,12 @@ def mock_choice(l):
     random_stub_index = (random_stub_index + 1) % len(random_stub)
     return e
 
+def mock_randint(a, b):
+    global randint_stub_index
+    span = b - a + 1
+    result = a + randint_stub_index % span
+    randint_stub_index += 1
+    return result
 
 class TestLearning(unittest.TestCase):
     
@@ -188,6 +218,14 @@ class TestLearning(unittest.TestCase):
         with mock.patch('soclearn.strategy.random.choice', mock_choice):
             next = strategy.individual(G, initial_individual, obj)
         self.assertEqual(next, next_individual)
+
+    def test_individual_bit(self):
+        obj = lambda x: sum(
+            1 for i, v in enumerate(true_value)
+            if x[i] == v)
+        with mock.patch('soclearn.strategy.random.randint', mock_randint):
+            next = strategy.individual_bit(G, initial_individual_bit, obj, nodes=range(8))
+        self.assertEqual(next, next_individual_bit)
 
     
 if __name__ == '__main__':

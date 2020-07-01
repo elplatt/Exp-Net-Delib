@@ -10,6 +10,7 @@ def learn(
         objective=None,
         steps=10,
         individual=False,
+        individual_all_bits=True,
         individual_mode=MODE_ALL,
         sample=None):
     '''Runs the simulation, takes the list of inital beliefs and updates each bit based on the learning strategy.
@@ -18,7 +19,10 @@ def learn(
     - inital_beliefs: The inital beliefs of each agent before the simulation
     - learning step: The learning strategy agents will follow (see learning section above for options)
     - step: number of iterations
-    - individual: If True, apply individual learning before each step
+    - individual: If True, apply individual learning at each step
+    - individaul_all_bits: If True (default), apply individual learning to each
+        bit of a solution, one bit at a time. Otherwise, chose a single bit at
+        random.
     - individual_mode: When to perform individual learning:
       MODE_ALL - (default) before each social learning step
       MODE_FALLBACK - only when social learning fails to improve objective 
@@ -27,6 +31,13 @@ def learn(
     #Returns 
     A list of agent's beliefs over time
     '''
+    
+    # Select the function for individual learning if necessary
+    if individual:
+        if individual_all_bits:
+            individual_step = slstrat.individual
+        else:
+            individual_step = slstrat.individual_bit
     
     # Initialize current belief dict with initial beliefs
     current_beliefs = dict((k, tuple(v)) for k, v in initial_beliefs.items())
@@ -39,15 +50,21 @@ def learn(
   
     # Repeatedly update beliefs
     for i in range(steps):
+
+        # Perform individual learning on all nodes, if necessary
         if individual:
-            # Perform individual learning on all nodes
-            individual_beliefs = slstrat.individual(G, current_beliefs, objective=objective)
+            individual_beliefs = individual_step(G, current_beliefs, objective=objective)
+
+        # For MODE_ALL individual learning, update all nodes
         if individual and individual_mode == MODE_ALL:
             # Adopt individual learning results for all nodes
             current_beliefs = individual_beliefs
             beliefs.append(current_beliefs)
+            
         # Perform social learning
         social_beliefs = learning_step(G, current_beliefs, objective=objective, sample=sample)
+
+        # Adopt new beliefs based on social and individual learning
         if individual and individual_mode == MODE_FALLBACK:
             # Only fall back to individual belief if social learning is not an improvement
             next_beliefs = dict()
@@ -61,8 +78,9 @@ def learn(
         else:
             # Adopt all beliefs generated from social learning
             current_beliefs = social_beliefs
-        #need to pass a param that will call diff strategies
+        
         beliefs.append(current_beliefs)
+        
     return beliefs
 
 def find_local_maximum(state, objective):

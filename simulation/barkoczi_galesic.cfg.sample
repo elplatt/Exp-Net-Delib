@@ -14,6 +14,7 @@ lattice_k = 18
 [strategies]
 sample = 3
 individual = True
+individual_all_bits = False
 # individual_mode: 1=MODE_ALL, 2=MODE_FALLBACK
 individual_mode = 2
 # Strategies are currently hardcoded

@@ -11,6 +11,7 @@ def run_discrete_trial(
     stages,
     steps,
     individual=False,
+    individual_all_bits=True,
     individual_mode=slearn.MODE_ALL,
     sample=None
 ):
@@ -24,6 +25,9 @@ def run_discrete_trial(
     stages: the number of stages in each trial
     steps: the number of learning steps per stage
     individual: whether to perform individual learning before each stage
+    individaul_all_bits: If True (default), apply individual learning to each
+        bit of a solution, one bit at a time. Otherwise, chose a single bit at
+        random.
     
     Returns
     A list of dictionaries, one for each time step.
@@ -50,6 +54,7 @@ def run_discrete_trial(
             objective,
             steps,
             individual=individual,
+            individual_all_bits=individual_all_bits,
             individual_mode=individual_mode,
             sample=sample)
         beliefs_stages += beliefs_list[1:]

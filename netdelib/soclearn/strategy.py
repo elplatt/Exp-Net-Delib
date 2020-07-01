@@ -237,7 +237,7 @@ def individual(G, beliefs, objective, **kwargs):
     new_beliefs = {}
     
     # Create a copy of current beliefs and ensure tuples
-    current_beliefs =dict(
+    current_beliefs = dict(
         (k, tuple(v))
         for k, v in beliefs.items())
     
@@ -272,5 +272,52 @@ def individual(G, beliefs, objective, **kwargs):
             new_beliefs[v] = best_beliefs[0]
         else:
             new_beliefs[v] = random.choice(best_beliefs)
+        
+    return new_beliefs
+
+def individual_bit(G, beliefs, objective, nodes=None, **kwargs):
+    '''For each node, alter a single bit at random and keep the new belief if
+    it improves the objective function.
+    
+    #Params 
+    G: a Graph
+    beliefs: a dict mapping nodes of G to lists of 1s and 0s.
+    objective: a function mapping a belief to a number.
+    nodes: list of nodes in order to perform learning
+    
+    #Return
+     A list of beliefs chosen among v's neighbors 
+    '''
+    # Dict to contain new beliefs
+    new_beliefs = {}
+    
+    # Create a copy of current beliefs and ensure tuples
+    current_beliefs = dict(
+        (k, tuple(v))
+        for k, v in beliefs.items())
+    
+    if nodes is None:
+        nodes = G.nodes()
+    
+    # Iterates through each node
+    for v in nodes:
+
+        # Find current value
+        belief = current_beliefs[v]
+        current_value = objective(belief)
+        
+        # Try improving belief by hill-climbing
+        bit = random.randint(0, len(belief) - 1)
+        trial_belief = tuple(
+            belief[i] if i != bit
+            else 1 - belief[i]
+            for i in range(len(belief)))
+        trial_value = objective(trial_belief)
+
+        # Only change belief if it improves on the previous belief
+        if trial_value > current_value:
+            new_beliefs[v] = trial_belief
+        else:
+            new_beliefs[v] = current_beliefs[v]
         
     return new_beliefs
