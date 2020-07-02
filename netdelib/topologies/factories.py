@@ -116,7 +116,7 @@ class LFRFactory(NetworkFactory):
     """
     
     def __init__(self, N, M, tau1, tau2, mu):
-        super(LFRFactory, self).__init__(N, M, false)
+        super(LFRFactory, self).__init__(N, M, False)
         self.tau1 = tau1
         self.tau2 = tau2
         self.mu = mu
@@ -135,7 +135,7 @@ class StochasticBlockFactory(NetworkFactory):
     """
     
     def __init__(self, N, M):
-        super(StochasticBlockFactory, self).__init__(N, M, false)
+        super(StochasticBlockFactory, self).__init__(N, M, False)
     
     def create(self, stage):
         num_blocks = int(self.N / self.M)
