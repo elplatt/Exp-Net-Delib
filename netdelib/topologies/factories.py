@@ -102,7 +102,7 @@ class RandomFactory(NetworkFactory):
         self.p = p
         
     def create(self, stage):
-        return nx.erdos_renyi_graph(N, self.p)
+        return nx.erdos_renyi_graph(self.N, self.p)
 
 class LFRFactory(NetworkFactory):
     """Factory class for LFR networks.
