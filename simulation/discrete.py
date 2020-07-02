@@ -13,6 +13,7 @@ def run_discrete_trial(
     individual=False,
     individual_all_bits=True,
     individual_mode=slearn.MODE_ALL,
+    critical=False,
     sample=None
 ):
     """Run a single trial
@@ -28,6 +29,8 @@ def run_discrete_trial(
     individaul_all_bits: If True (default), apply individual learning to each
         bit of a solution, one bit at a time. Otherwise, chose a single bit at
         random.
+    critical: If True, only keep social solutions that improve objective
+    sample: The number of neighbors to sample
     
     Returns
     A list of dictionaries, one for each time step.
@@ -56,6 +59,7 @@ def run_discrete_trial(
             individual=individual,
             individual_all_bits=individual_all_bits,
             individual_mode=individual_mode,
+            critical=critical,
             sample=sample)
         beliefs_stages += beliefs_list[1:]
     return beliefs_stages
