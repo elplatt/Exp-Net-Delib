@@ -143,7 +143,7 @@ class StochasticBlockFactory(NetworkFactory):
         between_density = 1 / (self.N - self.M)
         sizes = [self.M for i in range(num_blocks)]
         density = [[
-                within_density if s == t else between_density
+                within_density if s == r else between_density
                 for s in range(num_blocks)]
             for r in range(num_blocks)
         ]
