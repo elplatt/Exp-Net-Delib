@@ -32,6 +32,13 @@ def get_long_path_stage_groups(N, M, stage):
         877,881,883,887,907,911,919,929,937,941,
         947,953,967,971,977,983,991,997,1009,1013 
     ]
+    
+    # If stage is too high, modulus sets will be smaller than M
+    # Correct for the above by resetting stage after an upper limit
+    num_groups = int(N / M)
+    num_moduli = [i for i, m in enumerate(modulus) if m > num_groups][0]
+    stage = stage % num_moduli
+    
     m = modulus[stage]
     partition = []
     for j in range(m):
