@@ -45,7 +45,7 @@ def conform(G, beliefs, sample=None, **kwargs):
     for k, v in current_beliefs.items():
         current_beliefs[k] = tuple(v)
     
-    new_lists = dict((v, [current_beliefs[v]]) for v in G.nodes()) #a dict: intiates a list for each node v. 
+    new_lists = dict((v, []) for v in G.nodes()) #a dict: intiates a list for each node v. 
     
     for v in new_lists:
         for w in G.neighbors(v):

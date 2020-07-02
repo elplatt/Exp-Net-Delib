@@ -12,6 +12,7 @@ def learn(
         individual=False,
         individual_all_bits=True,
         individual_mode=MODE_ALL,
+        critical=False,
         sample=None):
     '''Runs the simulation, takes the list of inital beliefs and updates each bit based on the learning strategy.
 
@@ -24,8 +25,9 @@ def learn(
         bit of a solution, one bit at a time. Otherwise, chose a single bit at
         random.
     - individual_mode: When to perform individual learning:
-      MODE_ALL - (default) before each social learning step
-      MODE_FALLBACK - only when social learning fails to improve objective 
+        MODE_ALL - (default) before each social learning step
+        MODE_FALLBACK - only when social learning fails to improve objective
+    - critical: If True, only keep social solutions that improve objective
     - sample: The number of neighbors to sample
     
     #Returns 
@@ -74,11 +76,17 @@ def learn(
                     next_beliefs[v] = individual_beliefs[v]
                 else:
                     next_beliefs[v] = social_beliefs[v]
-            current_beliefs = next_beliefs
         else:
             # Adopt all beliefs generated from social learning
-            current_beliefs = social_beliefs
+            next_beliefs = social_beliefs
+            
+        # If critical learning is enabled, only keep improvements
+        if critical:
+            for v in next_beliefs.keys():
+                if objective(next_beliefs[v]) <= objective(current_beliefs[v]):
+                        next_beliefs[v] = current_beliefs[v]
         
+        current_beliefs = next_beliefs
         beliefs.append(current_beliefs)
         
     return beliefs
