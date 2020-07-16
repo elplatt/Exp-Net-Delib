@@ -2,6 +2,7 @@ from . import strategy as slstrat
 
 MODE_ALL = 1
 MODE_FALLBACK = 2
+MODE_BEST = 3
 
 def learn(
         G,
@@ -27,6 +28,7 @@ def learn(
     - individual_mode: When to perform individual learning:
         MODE_ALL - (default) before each social learning step
         MODE_FALLBACK - only when social learning fails to improve objective
+        MODE_BEST - chose best between individual and social
     - critical: If True, only keep social solutions that improve objective
     - sample: The number of neighbors to sample
     
@@ -76,6 +78,14 @@ def learn(
                     next_beliefs[v] = individual_beliefs[v]
                 else:
                     next_beliefs[v] = social_beliefs[v]
+        elif individual and individual_mode == MODE_BEST:
+            # Choose best between social and individual
+            next_beliefs = dict()
+            for v in social_beliefs.keys():
+                if objective(social_beliefs[v]) > objective(individual_beliefs[v]):
+                    next_beliefs[v] = social_beliefs[v]
+                else:
+                    next_beliefs[v] = individual_beliefs[v]                
         else:
             # Adopt all beliefs generated from social learning
             next_beliefs = social_beliefs
