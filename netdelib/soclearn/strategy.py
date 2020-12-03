@@ -222,6 +222,78 @@ def local_majority(G, beliefs, sample=None, **kwargs):
 
 learning_step_bit_majority = local_majority
 
+def confident_neighbor(G, beliefs, objective, sample=None, **kwargs):
+    '''For each node, chose the belief of a neighbor having the best solution in its own neighborhood.
+    
+    #Params 
+    G: a Graph
+    beliefs: a dict mapping nodes of G to lists of 1s and 0s.
+    objective: a function mapping a belief to a number.
+    sample: None (default) or the number of neighbors to random
+    
+    #Return
+     A list of beliefs chosen among v's neighbors 
+    '''
+    # Dict to contain new beliefs
+    new_beliefs = {}
+    
+    # Create a copy of current beliefs and ensure tuples
+    current_beliefs = dict(
+        (k, tuple(v))
+        for k, v in beliefs.items())
+
+    # Maps nodes to a list of confident neighbors
+    confident = {}
+    
+    # Map nodes to their better neighbors
+    better = {}
+    
+    # Iterates through each node to determine "confident" nodes
+    for v in G.nodes():
+        
+        # Sample
+        neighbors = list(G.neighbors(v))
+        if sample is not None and len(neighbors) > sample:
+            neighbors = random.sample(neighbors, sample)
+        
+        # Evaluate objective function for all neighbors and current node
+        neighbor_values = dict(
+            (w, objective(current_beliefs[w]))
+            for w in neighbors)
+        node_value = objective(current_beliefs[v])
+
+        # Announce confidence if necessary
+        # Announcement is made to all neighbors, not just sample
+        if node_value >= max(neighbor_values.values()):
+            for w in G.neighbors(v):
+                try:
+                    confident[w].append(v)
+                except KeyError:
+                    confident[w] = [v]
+        else:
+            # Otherwise, determine list of better neighbors
+            better[v] = [
+                w for w, value in neighbor_values.items()
+                if value > node_value]
+                    
+    # Update current beliefs after confidence has been announced
+    for v in G.nodes():
+        
+        try:
+            # Randomly choose a confident neighbor
+            new_beliefs[v] = random.choice(confident[v])
+        except KeyError:
+            # No confident neighbors
+            # Do we have better neighbors?
+            if len(better[v]) > 0:
+                # Yes, randomly choose one
+                new_beliefs[v] = random.choice(better[v])
+            else:
+                # No, keep current belief
+                new_beliefs[v] = current_beliefs[v]
+        
+    return new_beliefs
+
 def individual(G, beliefs, objective, **kwargs):
     '''For each node, perform a single step of hill-climbing to find new belief.
     
