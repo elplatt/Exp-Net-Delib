@@ -145,6 +145,33 @@ next_individual_bit = {
     7: (1, 0, 1, 0, 1, 0)
 }
 
+true_value_confident = (1, 1, 1, 1)
+
+G_confident = nx.Graph()
+G_confident.add_edges_from([
+    (0, 4), (1, 2), (1, 3), (1, 4), (2, 5), (2, 6)
+])
+
+initial_confident = {
+    0: (1, 1, 1, 1),
+    1: (0, 0, 0, 0),
+    2: (0, 1, 1, 1),
+    3: (0, 0, 0, 1),
+    4: (0, 0, 1, 1),
+    5: (0, 0, 1, 0),
+    6: (0, 1, 0, 0)
+}
+
+next_confident = {
+    0: (1, 1, 1, 1),
+    1: (0, 0, 0, 1),
+    2: (0, 1, 1, 1),
+    3: (0, 0, 0, 1),
+    4: (1, 1, 1, 1),
+    5: (0, 1, 1, 1),
+    6: (0, 1, 1, 1)
+}
+
 def mock_uniform(low=0, high=1, size=1):
     global random_stub_index
     next = random_stub[random_stub_index]
@@ -206,6 +233,14 @@ class TestLearning(unittest.TestCase):
             if x[i] == v)
         next = strategy.best_neighbor(G, initial, obj)
         self.assertEqual(next, next_best_neighbor)
+
+    def test_confident_neighbor(self):
+        with mock.patch('soclearn.strategy.random.choice', mock_choice):
+            obj = lambda x: sum(
+                1 for i, v in enumerate(true_value_confident)
+                if x[i] == v)
+            next = strategy.confident_neighbor(G_confident, initial_confident, obj)
+        self.assertEqual(next, next_confident)
 
     def test_local_majority(self):
         next = strategy.local_majority(G, initial)
