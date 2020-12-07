@@ -288,7 +288,7 @@ def confident_neighbor(G, beliefs, objective, sample=None, **kwargs):
             # Do we have better neighbors?
             if len(better[v]) > 0:
                 # Yes, randomly choose one
-                new_beliefs[v] = random.choice(better[v])
+                new_beliefs[v] = current_beliefs[random.choice(better[v])]
             else:
                 # No, keep current belief
                 new_beliefs[v] = current_beliefs[v]
