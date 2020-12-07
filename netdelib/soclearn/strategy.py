@@ -264,7 +264,8 @@ def confident_neighbor(G, beliefs, objective, sample=None, **kwargs):
 
         # Announce confidence if necessary
         # Announcement is made to all neighbors, not just sample
-        if node_value >= max(neighbor_values.values()):
+        if len(neighbor_values) == 0 or node_value >= max(neighbor_values.values()):
+            better[v] = []
             for w in G.neighbors(v):
                 try:
                     confident[w].append(v)
@@ -281,7 +282,7 @@ def confident_neighbor(G, beliefs, objective, sample=None, **kwargs):
         
         try:
             # Randomly choose a confident neighbor
-            new_beliefs[v] = random.choice(confident[v])
+            new_beliefs[v] = current_beliefs[random.choice(confident[v])]
         except KeyError:
             # No confident neighbors
             # Do we have better neighbors?
