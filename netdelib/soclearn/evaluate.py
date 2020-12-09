@@ -36,3 +36,29 @@ def belief_distance(belief_list, true_value):
         mean = total / len(beliefs) / num_bits
         y.append(mean)
     return y    
+
+def belief_set_distance(belief_list, target_beliefs):
+    '''Calculates the mean distance between agent beliefs and the nearest
+    element of target_beliefs.
+    #Params 
+    beief_list: a list beliefs, each element is a dict of beliefs at one step [{}]
+    target_beliefs: a dict mappint nodes to beliefs
+    
+    #Return value
+    A list of numbers in [0,len(target_beliefs[0])] representing the mean
+    distance to the nearest element of target_beliefs.
+    '''
+    target_set = set([tuple(b) for b in target_beliefs.values()])
+    y = []
+    for beliefs in belief_list: #gives me a dict of all beliefs in all steps
+        total = 0
+        for v in beliefs.keys():
+            distances = [
+                sum([1 for index, bit in enumerate(beliefs[v]) if t[index] == bit])
+                for t in target_set]
+            nearest = min(distances)
+            total += nearest
+        mean = total / len(beliefs)
+        y.append(mean)
+    return y    
+
