@@ -1,12 +1,13 @@
 import random
 
-def get_long_path_stage_groups(N, M, stage):
+def get_long_path_stage_groups(N, M, stage, lowest=2):
     """Find groups for a particular stage using long-path network.
     
     # Params
     N: Number of participants (integer, must be > 0).
     M: Group size (integer, must be >= 2).
     stage: Stage of deliberation (integer, must be >= 0).
+    lowest: Begin with the first modulus >= lowest.
     
     # Returns
     A list, with each element a set of participant ids corresponding to a group.
@@ -33,13 +34,20 @@ def get_long_path_stage_groups(N, M, stage):
         947,953,967,971,977,983,991,997,1009,1013 
     ]
     
+    # Remove excluded moduli
+    if lowest is not None and lowest > 1:
+        modulus = [1] + [x for x in modulus if x >= lowest]
+    
     # If stage is too high, modulus sets will be smaller than M
     # Correct for the above by resetting stage after an upper limit
     num_groups = int(N / M)
     num_moduli = [i for i, m in enumerate(modulus) if m > num_groups][0]
     stage = stage % num_moduli
     
-    m = modulus[stage]
+    if stage == 0:
+        m = 1
+    else:
+        m = modulus[stage]
     partition = []
     for j in range(m):
         # Generate 
