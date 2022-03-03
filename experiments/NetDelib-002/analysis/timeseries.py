@@ -46,7 +46,7 @@ class TimeSeriesResult (object):
         """Calculate variance values"""
         m = self.mean()
         n = len(m)
-        return [(self.squares[i] - m[i] * m[i]) / self.counts[i] for i in range(n)]
+        return [self.squares[i] / self.counts[i] - m[i] * m[i] for i in range(n)]
     
     def se (self):
         """Calculate the standard error values"""

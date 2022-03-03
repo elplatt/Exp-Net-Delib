@@ -256,6 +256,7 @@ class Tideman(SocialWelfare):
             for win in range(len(pref)):
                 for lose in range(win + 1, len(pref)):
                     margins[(pref[win], pref[lose])] += count
+                    margins[(pref[lose], pref[win])] -= count
         return margins
         
     def social_preference_graph (self):
@@ -308,4 +309,44 @@ class Tideman(SocialWelfare):
     def agreement_tideman (self):
         G, counted, skipped = self.social_preference_graph()
         return counted / (counted + skipped)
+
+class PreferenceSequence():
+
+    def __init__(self):
+        self.preferences = []
+        
+    def __getitem__(self, key):
+        return self.preferences[key]
     
+    def __repr__(self):
+        return repr(self.preferences)
+    
+    def add(self, preference):
+        self.preferences.append(preference)
+        
+class PreferenceSequenceCollection():
+    
+    def __init__(self):
+        self.participant_sequences = {}
+    
+    def __repr__(self):
+        return repr(list(self.items()))
+    
+    def __getitem__(self, key):
+        return self.participant_sequences[key]
+    
+    def add(self, participant_id, sequence):
+        self.participant_sequences[participant_id] = sequence
+    
+    def items(self):
+        participant_ids = sorted(set(self.participant_sequences.keys()))
+        for participant_id in participant_ids:
+            yield (participant_id, self.participant_sequences[participant_id])
+            
+    def sequences(self):
+        participant_ids = sorted(set(self.participant_sequences.keys()))
+        for participant_id in participant_ids:
+            yield self.participant_sequences[participant_id]
+            
+    def participant_ids(self):
+        return sorted(set(self.participant_sequences.keys()))
