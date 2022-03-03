@@ -82,4 +82,43 @@ def make_preference_sequence_collection(df_score):
                 break
     return collection
         
-        
+def fill_attrition(df_score):
+    """Fill missing stages with data from previous stage.
+    
+    Parameters
+    ----------
+    df_score: A pandas datafrom as returned by load_loomio_score().
+    
+    Returns
+    -------
+    A copy of df_score with missing stages filled in
+    """
+    participant_ids = sorted(set(df_score.participant_id))
+    stages = len(set(df_score.stage))
+    for p in participant_ids:
+        for s in range(stages):
+            row = df_score[(df_score.participant_id == p) & (df_score.stage == s)].copy()
+            if len(row) < 1:
+                # No results, use result from previous stage
+                row = last_row.copy()
+                row.stage = row.stage.replace(s - 1, s)
+                # Concat copy of old row with newly generated index value
+                df_score = pd.concat([df_score, row], ignore_index=True)
+            last_row = row
+    return df_score
+
+def remove_attrition(df_score):
+    """Remove participants with missing data.
+    
+    Parameters
+    ----------
+    df_score: A pandas datafrom as returned by load_loomio_score().
+    
+    Returns
+    -------
+    A copy of df_score with attrition participants removed.
+    """
+    x = df_score.groupby('participant_id').count()
+    participant_ids = x[x.stage == 4].index
+    df_score = df_score.query("participant_id in @participant_ids")
+    return df_score
