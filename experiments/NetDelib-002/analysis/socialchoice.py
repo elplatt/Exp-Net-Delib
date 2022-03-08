@@ -199,6 +199,69 @@ class SocialWelfare(object):
         """
         social_preference = self.social_preference()
         return social_preference[0]
+
+    def pairwise_margin (self):
+        """Find the win/loss margin for each pair of alternatives.
+        
+        Returns
+        -------
+        A dict mapping (a,b) to <prefers(a) - prefers(b)>
+        """
+        # Create a list of distinct pairs
+        alternatives = self.profile.alternatives()
+        pairs = set(itertools.product(alternatives, alternatives))
+        for alt in alternatives:
+            pairs.remove((alt, alt))
+        # Initialize margins
+        margins = dict((contest, 0) for contest in pairs)
+        # Update margins for each preference in the profile
+        for pref, count in self.profile.counts():
+            # Each element wins relative to those that come after it
+            for win in range(len(pref)):
+                for lose in range(win + 1, len(pref)):
+                    margins[(pref[win], pref[lose])] += count
+                    margins[(pref[lose], pref[win])] -= count
+        return margins
+    
+    
+class Condorcet(SocialWelfare):
+    """Social welfare utilities for the Condorcet method"""
+    
+    def social_preference (self):
+        """Calculate the social preference ranking according to the Condorcet method.
+        If a cycle is encountered, the social preference ranking will be truncated.
+        """
+
+        # Get alternatives and contest win/loss margins
+        alts_remaining = self.profile.alternatives()
+        margins = self.pairwise_margin()
+        
+        # Find and remove condorcet winner until out of alternatives
+        result = []
+        while len(alts_remaining) > 0:
+            
+            winner = set()
+            for a in alts_remaining:
+                lost = False
+                for b in alts_remaining:
+                    if a == b:
+                        # Skip self
+                        continue
+                    if margins[(a, b)] < 0:
+                        lost = True
+                        break
+                if not lost and not a in winner:
+                    # Add winner, avoiding double-counting
+                    winner.add(a)
+
+            # If no winner was found, a cycle exists, so exit
+            if len(winner) == 0:
+                break
+            # Otherwise remove winners(s) from alts, append to result, and continue
+            alts_remaining = alts_remaining - winner
+            result.append(winner)
+            
+        return result
     
 class Majority(SocialWelfare):
     """Social welfare function for majority vote. An alternative's score is the number
@@ -235,30 +298,7 @@ import itertools
 import networkx as nx
 
 class Tideman(SocialWelfare):
-    
-    def pairwise_margin (self):
-        """Find the win/loss margin for each pair of alternatives.
-        
-        Returns
-        -------
-        A dict mapping (a,b) to <prefers(a) - prefers(b)>
-        """
-        # Create a list of distinct pairs
-        alternatives = self.profile.alternatives()
-        pairs = set(itertools.product(alternatives, alternatives))
-        for alt in alternatives:
-            pairs.remove((alt, alt))
-        # Initialize margins
-        margins = dict((contest, 0) for contest in pairs)
-        # Update margins for each preference in the profile
-        for pref, count in self.profile.counts():
-            # Each element wins relative to those that come after it
-            for win in range(len(pref)):
-                for lose in range(win + 1, len(pref)):
-                    margins[(pref[win], pref[lose])] += count
-                    margins[(pref[lose], pref[win])] -= count
-        return margins
-        
+            
     def social_preference_graph (self):
         profile = self.profile
         margins = self.pairwise_margin()
