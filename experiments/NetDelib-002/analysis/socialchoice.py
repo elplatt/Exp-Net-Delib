@@ -1,3 +1,4 @@
+import itertools
 import numpy.random as nprand
 import scipy.stats as spstats
 
@@ -7,7 +8,7 @@ class Preference(object):
     
     Parameters
     ----------
-    ranked : ranked list of alternatives
+    ranked : ranked list of alternatives (0 is highest rank)
     
     """
     
@@ -52,6 +53,39 @@ class Preference(object):
         ranks = [rank for rank, alt in rank_alt]
         return ranks
 
+    def kendall_tau (self, other):
+        """Kendall tau distance between this preference and `other`
+        
+        Parameters
+        ----------
+        other: a Preference or tuple of alternatives
+        
+        Returns
+        -------
+        The integer kendall tau distance.
+        
+        Notes
+        -----
+        This implementation uses the naive algorithm. Faster algorithms exist.
+        """
+        
+        # Calculate pairwise contests
+        alts = self.ranked
+        self_pairs = set()
+        for i, alt_i in enumerate(self.ranked):
+            # alt_i beats any elements that come after it
+            for j, alt_j in enumerate(self.ranked[i + 1:]):
+                self_pairs.add( (alt_i, alt_j) )
+
+        other_pairs = set()
+        for i, alt_i in enumerate(other):
+            for j, alt_j in enumerate(other[i + 1:]):
+                other_pairs.add( (alt_i, alt_j) )
+            
+        # Calculate number of discordant pairs
+        print(self_pairs)
+        print(other_pairs)
+        return len(self_pairs - other_pairs)
     
 class Profile(object):
     """
@@ -262,7 +296,20 @@ class Condorcet(SocialWelfare):
             result.append(winner)
             
         return result
+
     
+class KemenyYoung(SocialWelfare):
+    
+    def social_preference(self):
+        
+        # Iterate through every possible ordering
+        alts = sorted(self.profile.alternatives())
+        preferences = itertools.permutations(alts)
+        for pref in preferences:
+            # TODO
+            pass
+        
+        
 class Majority(SocialWelfare):
     """Social welfare function for majority vote. An alternative's score is the number
     of preferences in the profile that place the alternative in first place.
