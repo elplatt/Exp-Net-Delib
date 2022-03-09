@@ -1,4 +1,5 @@
 import itertools
+import math
 import numpy.random as nprand
 import scipy.stats as spstats
 
@@ -84,6 +85,43 @@ class Preference(object):
             
         # Calculate number of discordant pairs
         return len(self_pairs - other_pairs)
+    
+    def forward_swap_vector (self, other):
+        """Returns a vector representing the number of forward swaps (i -> i+1) at
+        index i over the course of bubble sorting `other` to match `self`.
+        
+        The sum of this vector is the kendall tau distance.
+        """
+        # Convert other to list
+        if other.__class__ == Preference:
+            other = list(other.ranked)
+        else:
+            other = list(other)
+        # Initialize results and iterate through indexes
+        v = [0] * (len(self.ranked) - 1)
+        for i, alt in enumerate(self.ranked):
+            # Swap all pairs between indexes of alt
+            other_i = other.index(alt)
+            other = other[0:i] + [alt] + other[i:other_i] + other[other_i + 1:]
+            # Create swap vector
+            # Only pairs between current index and other index are swapped
+            swap_count = other_i - i
+            vi = [0] * i + [1] * swap_count
+            vi += [0] * (len(self.ranked) - len(vi) - 1)
+            # Add vi to v
+            for j, vij in enumerate(vi):
+                v[j] += vij
+        return tuple(v)
+    
+    def weighted_swap_distance (self, other, weight=0.5):
+        v = reversed(self.forward_swap_vector(other))
+        distance = 0
+        for i, vi in enumerate(v):
+            fraction = vi / (i + 1)
+            distance = weight * fraction + (1 - weight) * distance
+        return distance
+        
+                    
     
 class Profile(object):
     """
@@ -179,6 +217,18 @@ class Profile(object):
                 if pref_a == pref_b:
                     continue
                 r, p = spstats.kendalltau(pref_a.ranks(), pref_b.ranks())
+                total += count_a * count_b * r
+                count += count_a * count_b
+        return total / count
+    
+    def agreement_weighted_swap(self, weight=0.5):
+        total = 0
+        count = 0
+        for pref_a, count_a in self.counts():
+            for pref_b, count_b in self.counts():
+                if pref_a == pref_b:
+                    continue
+                r = 1 - 2 * pref_a.weighted_swap_distance(pref_b, weight)
                 total += count_a * count_b * r
                 count += count_a * count_b
         return total / count
