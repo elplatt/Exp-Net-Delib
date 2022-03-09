@@ -83,8 +83,6 @@ class Preference(object):
                 other_pairs.add( (alt_i, alt_j) )
             
         # Calculate number of discordant pairs
-        print(self_pairs)
-        print(other_pairs)
         return len(self_pairs - other_pairs)
     
 class Profile(object):
@@ -300,14 +298,24 @@ class Condorcet(SocialWelfare):
     
 class KemenyYoung(SocialWelfare):
     
-    def social_preference(self):
-        
+    def social_preference_set(self):
         # Iterate through every possible ordering
+        counts = self.profile.counts()
         alts = sorted(self.profile.alternatives())
         preferences = itertools.permutations(alts)
+        best_total = None
+        best = set()
         for pref in preferences:
-            # TODO
-            pass
+            tau_total = sum([
+                count * p.kendall_tau(pref)
+                for p, count in counts])
+            if best_total == None or tau_total < best_total:
+                best_total = tau_total
+                best = set()
+                best.add(pref)
+            elif tau_total == best_total:
+                best.add(pref)
+        return best
         
         
 class Majority(SocialWelfare):
