@@ -148,6 +148,8 @@ class Profile(object):
         self.preference_counts = {}
         
     def add(self, preference):
+        if preference.__class__ != Preference:
+            preference = Preference(preference)
         self.preference_counts[preference] = self.preference_counts.get(preference, 0) + 1
         
     def alternatives (self):
@@ -481,6 +483,9 @@ class PreferenceSequence():
     def __repr__(self):
         return repr(self.preferences)
     
+    def __len__(self):
+        return len(self.preferences)
+    
     def add(self, preference):
         self.preferences.append(preference)
         
@@ -495,8 +500,19 @@ class PreferenceSequenceCollection():
     def __getitem__(self, key):
         return self.participant_sequences[key]
     
+    def __len__(self):
+        return len(self.participant_sequences)
+    
     def add(self, participant_id, sequence):
         self.participant_sequences[participant_id] = sequence
+    
+    def stages(self):
+        # Preference sequences are mutable so we have to caluclate this dynamically
+        result = 0
+        for participant_id, seq in self.participant_sequences.items():
+            if len(seq) > result:
+                result = len(seq)
+        return result
     
     def items(self):
         participant_ids = sorted(set(self.participant_sequences.keys()))
@@ -510,3 +526,22 @@ class PreferenceSequenceCollection():
             
     def participant_ids(self):
         return sorted(set(self.participant_sequences.keys()))
+
+class ProfileSequence(object):
+    
+    def __init__(self):
+        self.profiles = []
+    
+    @classmethod
+    def from_preference_sequence_collection(cls, prefs):
+        result = ProfileSequence()
+        stages = prefs.stages()
+        for stage in range(stages):
+            stage_profile = Profile()
+            for participant_id, sequence in prefs.items():
+                try:
+                    stage_profile.add(sequence[stage])
+                except IndexError:
+                    pass
+            result.profiles.append(stage_profile)
+        return result
