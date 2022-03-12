@@ -15,6 +15,7 @@ class Preference(object):
     
     def __new__(cls, ranked, _cache={}):
         """Load existing object or create new if necessary"""
+        ranked = tuple(ranked)
         try:
             return _cache[ranked]
         except KeyError:
@@ -113,14 +114,28 @@ class Preference(object):
                 v[j] += vij
         return tuple(v)
     
-    def weighted_swap_distance (self, other, weight=0.5):
-        v = reversed(self.forward_swap_vector(other))
+    @classmethod
+    def swap_vector_to_distance (cls, swap_vector):
+        # Reverse to put lower-order ranks at lowest indexes
+        v = reversed(swap_vector)
         distance = 0
+        # Place value of current swap index for distance calculation
+        place_value = 1
         for i, vi in enumerate(v):
-            fraction = vi / (i + 1)
-            distance = weight * fraction + (1 - weight) * distance
-        return distance
-        
+            # Update distance
+            distance += vi * place_value
+            # Maximum number of swaps at this index
+            max_value = len(swap_vector) - i
+            place_value = place_value * (max_value + 1)
+        # Max distance is next place_value - 1
+        max_distance = place_value - 1
+        normalized = distance / max_distance
+        return normalized
+    
+    def weighted_swap_distance (self, other):
+        # Find swap vector between self and other
+        swap_vector = self.forward_swap_vector(other)
+        return Preference.swap_vector_to_distance(swap_vector)
                     
     
 class Profile(object):
@@ -221,14 +236,14 @@ class Profile(object):
                 count += count_a * count_b
         return total / count
     
-    def agreement_weighted_swap(self, weight=0.5):
+    def agreement_weighted_swap(self):
         total = 0
         count = 0
         for pref_a, count_a in self.counts():
             for pref_b, count_b in self.counts():
                 if pref_a == pref_b:
                     continue
-                r = 1 - 2 * pref_a.weighted_swap_distance(pref_b, weight)
+                r = 1 - 2 * pref_a.weighted_swap_distance(pref_b)
                 total += count_a * count_b * r
                 count += count_a * count_b
         return total / count
