@@ -250,6 +250,25 @@ class Profile(object):
                 count += count_a * count_b
         return total / count
     
+    def mean_kendall_tau(self, preference):
+        total = 0
+        count = 0
+        for pref, count in self.counts():
+            d = pref.kendall_tau(preference)
+            total += count * d
+            count += count
+        return total / count
+        
+    def mean_weighted_swap_distance(self, preference):
+        total = 0
+        count = 0
+        for pref, count in self.counts():
+            d = pref.weighted_swap_distnace(preference)
+            total += count * d
+            count += count
+        return total / count
+        
+    
 class SocialWelfare(object):
     """
     Base class for social welfare and social choice calculations.
@@ -531,6 +550,9 @@ class ProfileSequence(object):
     
     def __init__(self):
         self.profiles = []
+    
+    def __getitem__(self, key):
+        return self.profiles[key]
     
     @classmethod
     def from_preference_sequence_collection(cls, prefs):
