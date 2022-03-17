@@ -1,5 +1,12 @@
 import pandas as pd
-from socialchoice import Preference, PreferenceSequenceCollection, PreferenceSequence
+from socialchoice import (
+    KemenyYoung,
+    Preference,
+    PreferenceSequenceCollection,
+    PreferenceSequence,
+    Profile,
+    BallotMedian,
+)
 
 def get_proposal_map(df):
     """Map proposal names to generic names."""
@@ -81,7 +88,33 @@ def make_preference_sequence_collection(df_score):
                 # Missing data from participant
                 break
     return collection
-        
+
+def make_kemeny_young_set(df_score, stage):
+    df_stage = df_score[df_score.stage == stage]
+    participant_ids = sorted(set(df_stage.participant_id))
+    profile = Profile()
+
+    for participant_id in participant_ids:
+        row = df_stage[df_stage.participant_id == participant_id]
+        ranked = score_to_ranked(row)
+        profile.add(ranked)
+
+    ky = KemenyYoung(profile)
+    return ky.social_preference_set()
+
+def make_ballot_set(df_score, stage):
+    df_stage = df_score[df_score.stage == stage]
+    participant_ids = sorted(set(df_stage.participant_id))
+    profile = Profile()
+
+    for participant_id in participant_ids:
+        row = df_stage[df_stage.participant_id == participant_id]
+        ranked = score_to_ranked(row)
+        profile.add(ranked)
+
+    wsp = BallotMedian(profile)
+    return wsp.social_preference_set()
+
 def fill_attrition(df_score):
     """Fill missing stages with data from previous stage.
     

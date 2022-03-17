@@ -1,7 +1,33 @@
+import functools
 import itertools
 import math
 import numpy.random as nprand
 import scipy.stats as spstats
+
+@functools.cache
+def ballot_number(first, length):
+    """
+    Number of allowable swap vectors below  the
+    vector of a given `length` consisting of `first` followed by all 0s.
+    
+    Note that `ballot_nubmer(1,n)` is the nth Catalan number.
+    There may be a faster non-recursive way to find these.
+    https://math.stackexchange.com/questions/4405023/generalized-catalan-number-satisfying-recursive-definition
+    """
+    if first == 0:
+        return 0
+    if length == 1:
+        return first
+    return ballot_number(first - 1, length) + ballot_number(first + 1, length - 1)
+
+def ballot_index(swap_vector):
+    """Number of allowable swap vectors below `swap_vector`."""
+    l = len(swap_vector)
+    total = 0
+    for i, vi in enumerate(swap_vector):
+        place = l - i
+        total += ballot_number(vi, place)
+    return total
 
 class Preference(object):
     """
@@ -115,7 +141,13 @@ class Preference(object):
         return tuple(v)
     
     @classmethod
-    def swap_vector_to_distance (cls, swap_vector):
+    def _swap_vector_to_distance (cls, swap_vector):
+        """
+        Calculate distance by treating swap vector as a mixed-base number.
+        
+        Deprecated. Doesn't really make sense because allowable values of one
+        digit depend on value of other digits.
+        """
         # Reverse to put lower-order ranks at lowest indexes
         v = reversed(swap_vector)
         distance = 0
@@ -131,11 +163,15 @@ class Preference(object):
         max_distance = place_value - 1
         normalized = distance / max_distance
         return normalized
+
     
-    def weighted_swap_distance (self, other):
+    def ballot_distance (self, other):
         # Find swap vector between self and other
         swap_vector = self.forward_swap_vector(other)
-        return Preference.swap_vector_to_distance(swap_vector)
+        n = len(self.ranked)
+        highest = ballot_number(1, n) - 1
+        distance = ballot_index(swap_vector)
+        return distance / highest
                     
     
 class Profile(object):
@@ -238,14 +274,14 @@ class Profile(object):
                 count += count_a * count_b
         return total / count
     
-    def agreement_weighted_swap(self):
+    def agreement_ballot(self):
         total = 0
         count = 0
         for pref_a, count_a in self.counts():
             for pref_b, count_b in self.counts():
                 if pref_a == pref_b:
                     continue
-                r = 1 - 2 * pref_a.weighted_swap_distance(pref_b)
+                r = 1 - 2 * pref_a.ballot_distance(pref_b)
                 total += count_a * count_b * r
                 count += count_a * count_b
         return total / count
@@ -259,11 +295,11 @@ class Profile(object):
             count += count
         return total / count
         
-    def mean_weighted_swap_distance(self, preference):
+    def mean_ballot_distance(self, preference):
         total = 0
         count = 0
         for pref, count in self.counts():
-            d = pref.weighted_swap_distnace(preference)
+            d = pref.ballot_distnace(preference)
             total += count * d
             count += count
         return total / count
@@ -400,6 +436,28 @@ class KemenyYoung(SocialWelfare):
                 best = set()
                 best.add(pref)
             elif tau_total == best_total:
+                best.add(pref)
+        return best
+        
+        
+class BallotMedian(SocialWelfare):
+    
+    def social_preference_set(self):
+        # Iterate through every possible ordering
+        counts = self.profile.counts()
+        alts = sorted(self.profile.alternatives())
+        preferences = itertools.permutations(alts)
+        best_total = None
+        best = set()
+        for pref in preferences:
+            ws_total = sum([
+                count * p.ballot_distance(pref)
+                for p, count in counts])
+            if best_total == None or ws_total < best_total:
+                best_total = ws_total
+                best = set()
+                best.add(pref)
+            elif ws_total == best_total:
                 best.add(pref)
         return best
         
