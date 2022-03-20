@@ -74,13 +74,34 @@ class Preference(object):
         """
         return set(self.ranked)
     
-    def ranks (self):
+    def _old_ranks (self):
+        # Assumed alternatives were integers
         alternatives = sorted(self.alternatives())
         rank_alt = [(rank, alt) for rank, alt in enumerate(self.ranked)]
         rank_alt = sorted(rank_alt, key=lambda x: x[1])
         ranks = [rank for rank, alt in rank_alt]
         return ranks
 
+    def ranks(self):
+        """Return a list of ranks for each alternative.
+        
+        The ith element of p.ranks() corresponds to the ith element of sorted(p.alternatives()).
+        """
+        alternatives = sorted(self.alternatives())
+        rank_items = dict([
+            (alt, rank)
+            for rank, alt
+            in enumerate(self.ranked)])
+        return [rank_items[alt] for alt in alternatives]
+    
+    def rank_items(self):
+        """Return a dictionary mapping alternatives to their ranks."""
+        alternatives = sorted(self.alternatives())
+        return dict([
+            (alt, rank)
+            for rank, alt
+            in enumerate(self.ranked)])
+    
     def kendall_tau (self, other):
         """Kendall tau distance between this preference and `other`
         
@@ -173,7 +194,53 @@ class Preference(object):
         distance = ballot_index(swap_vector)
         return distance / highest
 
-                    
+                
+    def crossing_vector (self, other):
+        """Returns the crossing vector between `self` and `other`.
+        
+        The ith element gives the number of elements above index i in `self` that occur
+        at or below index i in `other` (or equivalently, vice versa).
+        """
+        
+        # Cache ranks for convenience
+        try:
+            other_ranks = other.rank_items()
+        except AttributeError:
+            other = Preference(other)
+            other_ranks = other.rank_items()
+            
+        result = []
+        for i in range(len(self.ranked) - 1):
+            # Set boundary above index i
+            count = 0
+            # Get elements of self up to and including i
+            for j, vj in enumerate(self.ranked[:(i+1)]):
+                # Check whether element is on other side of boundary in other
+                if other_ranks[vj] > i:
+                    count += 1
+            result.append(count)
+        return result
+                
+    
+    def crossing_dissimilarity (self, other):
+        crossing_vector = self.crossing_vector(other)
+        l = len(crossing_vector)
+        # Create list of number of possible values for each index
+        index_max = [min(i + 1, l - i) for i in range(0, l)]
+        # Create list of place values
+        # This part is generic mixed-base numeral calculations
+        place_values = []
+        place_value = 0
+        highest_representable = 0
+        for i, max_i in enumerate(index_max):
+            place_value = highest_representable + 1
+            place_values.append(place_value)
+            highest_representable += place_value * max_i
+        # Reverse place values because low index means high rank
+        place_values = list(reversed(place_values))
+        # Calculate the value by combining crossing vector and place values
+        d = sum([place_values[i] * vi for i, vi in enumerate(crossing_vector)])
+        return d / highest_representable
     
 class Profile(object):
     """
@@ -283,6 +350,18 @@ class Profile(object):
                 if pref_a == pref_b:
                     continue
                 r = 1 - 2 * pref_a.ballot_dissimilarity(pref_b)
+                total += count_a * count_b * r
+                count += count_a * count_b
+        return total / count
+    
+    def agreement_crossing(self):
+        total = 0
+        count = 0
+        for pref_a, count_a in self.counts():
+            for pref_b, count_b in self.counts():
+                if pref_a == pref_b:
+                    continue
+                r = 1 - 2 * pref_a.crossing_dissimilarity(pref_b)
                 total += count_a * count_b * r
                 count += count_a * count_b
         return total / count
