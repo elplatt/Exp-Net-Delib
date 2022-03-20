@@ -165,13 +165,14 @@ class Preference(object):
         return normalized
 
     
-    def ballot_distance (self, other):
+    def ballot_dissimilarity (self, other):
         # Find swap vector between self and other
         swap_vector = self.forward_swap_vector(other)
         n = len(self.ranked)
         highest = ballot_number(1, n) - 1
         distance = ballot_index(swap_vector)
         return distance / highest
+
                     
     
 class Profile(object):
@@ -281,7 +282,7 @@ class Profile(object):
             for pref_b, count_b in self.counts():
                 if pref_a == pref_b:
                     continue
-                r = 1 - 2 * pref_a.ballot_distance(pref_b)
+                r = 1 - 2 * pref_a.ballot_dissimilarity(pref_b)
                 total += count_a * count_b * r
                 count += count_a * count_b
         return total / count
@@ -295,7 +296,7 @@ class Profile(object):
             count += count
         return total / count
         
-    def mean_ballot_distance(self, preference):
+    def mean_ballot_dissimilarity(self, preference):
         total = 0
         count = 0
         for pref, count in self.counts():
@@ -451,7 +452,7 @@ class BallotMedian(SocialWelfare):
         best = set()
         for pref in preferences:
             ws_total = sum([
-                count * p.ballot_distance(pref)
+                count * p.ballot_dissimilarity(pref)
                 for p, count in counts])
             if best_total == None or ws_total < best_total:
                 best_total = ws_total
