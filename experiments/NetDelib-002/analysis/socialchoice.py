@@ -541,6 +541,28 @@ class BallotMedian(SocialWelfare):
                 best.add(pref)
         return best
         
+
+class CrossingMedian(SocialWelfare):
+    
+    def social_preference_set(self):
+        # Iterate through every possible ordering
+        counts = self.profile.counts()
+        alts = sorted(self.profile.alternatives())
+        preferences = itertools.permutations(alts)
+        best_total = None
+        best = set()
+        for pref in preferences:
+            ws_total = sum([
+                count * p.crossing_dissimilarity(pref)
+                for p, count in counts])
+            if best_total == None or ws_total < best_total:
+                best_total = ws_total
+                best = set()
+                best.add(pref)
+            elif ws_total == best_total:
+                best.add(pref)
+        return best
+        
         
 class Majority(SocialWelfare):
     """Social welfare function for majority vote. An alternative's score is the number

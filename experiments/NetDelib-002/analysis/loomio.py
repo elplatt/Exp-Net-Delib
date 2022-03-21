@@ -1,11 +1,12 @@
 import pandas as pd
 from socialchoice import (
+    BallotMedian,
+    CrossingMedian,
     KemenyYoung,
     Preference,
     PreferenceSequenceCollection,
     PreferenceSequence,
     Profile,
-    BallotMedian,
 )
 
 def get_proposal_map(df):
@@ -113,6 +114,19 @@ def make_ballot_set(df_score, stage):
         profile.add(ranked)
 
     wsp = BallotMedian(profile)
+    return wsp.social_preference_set()
+
+def make_crossing_set(df_score, stage):
+    df_stage = df_score[df_score.stage == stage]
+    participant_ids = sorted(set(df_stage.participant_id))
+    profile = Profile()
+
+    for participant_id in participant_ids:
+        row = df_stage[df_stage.participant_id == participant_id]
+        ranked = score_to_ranked(row)
+        profile.add(ranked)
+
+    wsp = CrossingMedian(profile)
     return wsp.social_preference_set()
 
 def fill_attrition(df_score):
