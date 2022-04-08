@@ -117,6 +117,7 @@ def make_ballot_set(df_score, stage):
     return wsp.social_preference_set()
 
 def make_crossing_set(df_score, stage):
+    """Returns set of medians according to crossing distance."""
     df_stage = df_score[df_score.stage == stage]
     participant_ids = sorted(set(df_stage.participant_id))
     profile = Profile()

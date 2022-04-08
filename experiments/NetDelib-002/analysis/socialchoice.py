@@ -74,6 +74,9 @@ class Preference(object):
         """
         return set(self.ranked)
     
+    def display(self):
+        return "\t".join([str(alt) for alt in self.ranked])
+    
     def _old_ranks (self):
         # Assumed alternatives were integers
         alternatives = sorted(self.alternatives())
@@ -82,6 +85,10 @@ class Preference(object):
         ranks = [rank for rank, alt in rank_alt]
         return ranks
 
+    def first_place(self):
+        """Return the first place alternative."""
+        return self.ranked[0]
+    
     def ranks(self):
         """Return a list of ranks for each alternative.
         
@@ -102,12 +109,13 @@ class Preference(object):
             for rank, alt
             in enumerate(self.ranked)])
     
-    def kendall_tau (self, other):
+    def kendall_tau (self, other, normalize=False):
         """Kendall tau distance between this preference and `other`
         
         Parameters
         ----------
         other: a Preference or tuple of alternatives
+        normalize: (default=False) Normalize to [0,1] range
         
         Returns
         -------
@@ -132,7 +140,12 @@ class Preference(object):
                 other_pairs.add( (alt_i, alt_j) )
             
         # Calculate number of discordant pairs
-        return len(self_pairs - other_pairs)
+        tau = len(self_pairs - other_pairs)
+        if normalize:
+            n = len(self.ranked)
+            A = n * (n - 1) / 2
+            tau = tau / A
+        return tau
     
     def forward_swap_vector (self, other):
         """Returns a vector representing the number of forward swaps (i -> i+1) at
@@ -262,6 +275,14 @@ class Profile(object):
         
     def counts (self):
         return self.preference_counts.items()
+    
+    def first_place_distribution(self):
+        """The distribution of first-place votes."""
+        distribution = {}
+        for pref, count in self.preference_counts.items():
+            first = pref.first_place()
+            distribution[first] = distribution.get(first, 0) + count
+        return distribution
     
     @classmethod
     def from_score(cls, df):
@@ -668,6 +689,12 @@ class PreferenceSequence():
     def add(self, preference):
         self.preferences.append(preference)
         
+    def display(self):
+        result = ""
+        for pref in self.preferences:
+            result += "\t" + pref.display() + "\n"
+        return result
+        
 class PreferenceSequenceCollection():
     
     def __init__(self):
@@ -705,6 +732,13 @@ class PreferenceSequenceCollection():
             
     def participant_ids(self):
         return sorted(set(self.participant_sequences.keys()))
+    
+    def display(self):
+        result = ""
+        for participant_id, seq in self.participant_sequences.items():
+            result += str(participant_id) + "\n"
+            result += seq.display()
+        return result
 
 class ProfileSequence(object):
     
