@@ -261,8 +261,11 @@ class Profile(object):
     each `Preference`.
     """
     
-    def __init__ (self):
+    def __init__ (self, preferences=None):
         self.preference_counts = {}
+        if preferences is not None:
+            for pref in preferences:
+                self.add(pref)
         
     def add(self, preference):
         if preference.__class__ != Preference:
@@ -387,6 +390,18 @@ class Profile(object):
                 count += count_a * count_b
         return total / count
     
+    def disagreement_crossing(self):
+        total = 0
+        count = 0
+        for pref_a, count_a in self.counts():
+            for pref_b, count_b in self.counts():
+                if pref_a == pref_b:
+                    continue
+                r = pref_a.crossing_dissimilarity(pref_b)
+                total += count_a * count_b * r
+                count += count_a * count_b
+        return total / count
+    
     def mean_kendall_tau(self, preference):
         total = 0
         count = 0
@@ -400,7 +415,16 @@ class Profile(object):
         total = 0
         count = 0
         for pref, count in self.counts():
-            d = pref.ballot_distnace(preference)
+            d = pref.ballot_dissimilarity(preference)
+            total += count * d
+            count += count
+        return total / count
+
+    def mean_crossing_dissimilarity(self, preference):
+        total = 0
+        count = 0
+        for pref, count in self.counts():
+            d = pref.crossing_dissimilarity(preference)
             total += count * d
             count += count
         return total / count
