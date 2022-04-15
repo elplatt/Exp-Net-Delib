@@ -5,6 +5,11 @@ from loomio import *
 from socialchoice import *
 from timeseries import *
 
+legend_fontsize = 7
+
+formats = ['.-', 's-']
+markersizes = [9, 5]
+
 class NetDelib(object):
     
     def __init__(self):
@@ -21,57 +26,59 @@ class NetDelib(object):
         plt.xlabel('Stage')
         plt.ylabel(ylabel)
         plt.grid()
-        plt.legend()
+        plt.legend(fontsize=legend_fontsize)
         plt.title(title)
     
-    def plot(self, data, data_labels, ylabel, title):
+    def plot(self, data, data_labels, ylabel, title, ylim=None):
         for i, d in enumerate(data):
             if self.plot_mean:
                 y = d.mean()
             else:
                 y = d.y()
-            plt.plot(range(4), y, label=data_labels[i])
+            plt.plot(range(4), y, formats[i], label=data_labels[i], markersize=markersizes[i])
         plt.xticks(range(4))
         plt.xlabel('Stage')
         plt.ylabel(ylabel)
+        if ylim:
+            plt.ylim(ylim)
         plt.grid()
-        plt.legend()
+        plt.legend(fontsize=legend_fontsize)
         plt.title(title)
     
-    def plot_kendall(self):
-        self.plot_errorbar(
+    def plot_kendall(self, ylim=None):
+        self.plot(
             [self.kendall_control, self.kendall_random],
             ['Control', 'Random-Pod'],
             'Kendall Correlation',
-            self.title + ' (Kendall)')
+            self.title + ' (Kendall)', ylim=ylim)
         
-    def plot_spearman(self):
-        self.plot_errorbar(
+    def plot_spearman(self, ylim=None):
+        self.plot(
             [self.spearman_control, self.spearman_random],
             ['Control', 'Random-Pod'],
             'Spearman Correlation',
-            self.title + ' (Spearman)')
+            self.title + ' (Spearman)', ylim=ylim)
             
-    def plot_ballot(self):
-        self.plot_errorbar(
+    def plot_ballot(self, ylim=None):
+        self.plot(
             [self.ballot_control, self.ballot_random],
             ['Control', 'Random-Pod'],
             'Ballot Correlation',
-            self.title + ' (Ballot)')
+            self.title + ' (Ballot)', ylim=ylim)
     
-    def plot_crossing(self):
-        self.plot_errorbar(
+    def plot_crossing(self, ylim=None):
+        self.plot(
             [self.crossing_control, self.crossing_random],
             ['Control', 'Random-Pod'],
             'Crossing Correlation',
-            self.title + ' (Crossing)')
+            self.title + ' (Crossing)', ylim=ylim)
     
-    def plot_tideman(self):
+    def plot_tideman(self, ylim=None):
         self.plot(
             [self.tideman_control, self.tideman_random],
             ['Control', 'Random-Pod'],
             'Tideman Fraction',
-            self.title + ' (Tideman)')
+            self.title + ' (Tideman)', ylim=ylim)
         
         
 class NetDelibAgreement(NetDelib):
@@ -81,7 +88,7 @@ class NetDelibAgreement(NetDelib):
         super().__init__()
 
         self.title = 'Agreement'
-        self.bootstrap_runs = 10
+        self.bootstrap_runs = 0
         
         self.control_profiles = [
             Profile.from_score(df_score[(df_score.stage == stage) & (df_score.treatment == 1)])
