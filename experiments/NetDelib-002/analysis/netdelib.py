@@ -23,7 +23,7 @@ class NetDelib(object):
                 y = d.y()
             plt.errorbar(range(4), y, yerr=d.yerr95(), label=data_labels[i], capsize=6)
         plt.xticks(range(4))
-        plt.xlabel('Stage')
+        plt.xlabel('Round')
         plt.ylabel(ylabel)
         plt.grid()
         plt.legend(fontsize=legend_fontsize)
@@ -37,7 +37,7 @@ class NetDelib(object):
                 y = d.y()
             plt.plot(range(4), y, formats[i], label=data_labels[i], markersize=markersizes[i])
         plt.xticks(range(4))
-        plt.xlabel('Stage')
+        plt.xlabel('Round')
         plt.ylabel(ylabel)
         if ylim:
             plt.ylim(ylim)
@@ -106,7 +106,7 @@ class NetDelibAgreement(NetDelib):
         self.crossing_control = TimeSeriesResult()
         
         print('Single Group')
-        print('stage\tkendall\tspearman\ttideman\tballot\tcrossing')
+        print('round\tkendall\tspearman\ttideman\tballot\tcrossing')
         for stage, profile in enumerate(self.control_profiles):
 
             self.kendall_control.add_y(profile.agreement_kendall())
@@ -137,7 +137,7 @@ class NetDelibAgreement(NetDelib):
         self.ballot_random = TimeSeriesResult()
         self.crossing_random = TimeSeriesResult()
         print('\nRandom Pod')
-        print('stage\tkendall\tspearman\ttideman\tballot\tcrossing')
+        print('round\tkendall\tspearman\ttideman\tballot\tcrossing')
         for stage, profile in enumerate(self.random_profiles):
 
             self.kendall_random.add_y(profile.agreement_kendall())
