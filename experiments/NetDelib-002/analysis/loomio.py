@@ -130,7 +130,7 @@ def make_crossing_set(df_score, stage):
     wsp = CrossingMedian(profile)
     return wsp.social_preference_set()
 
-def fill_attrition(df_score):
+def fill_attrition(df_score, min_stages=0):
     """Fill missing stages with data from previous stage.
     
     Parameters
@@ -144,6 +144,9 @@ def fill_attrition(df_score):
     participant_ids = sorted(set(df_score.participant_id))
     stages = len(set(df_score.stage))
     for p in participant_ids:
+        if len(df_score[df_score.participant_id == p)]) < min_stages:
+            # Skip participants with fewer than min_stages entries
+            continue
         for s in range(stages):
             row = df_score[(df_score.participant_id == p) & (df_score.stage == s)].copy()
             if len(row) < 1:
