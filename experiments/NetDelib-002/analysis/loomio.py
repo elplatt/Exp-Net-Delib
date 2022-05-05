@@ -143,9 +143,11 @@ def fill_attrition(df_score, min_stages=0):
     """
     participant_ids = sorted(set(df_score.participant_id))
     stages = len(set(df_score.stage))
+    to_remove = set()
     for p in participant_ids:
         if len(df_score[df_score.participant_id == p]) < min_stages:
             # Skip participants with fewer than min_stages entries
+            to_remove.add(p)
             continue
         for s in range(stages):
             row = df_score[(df_score.participant_id == p) & (df_score.stage == s)].copy()
@@ -156,6 +158,9 @@ def fill_attrition(df_score, min_stages=0):
                 # Concat copy of old row with newly generated index value
                 df_score = pd.concat([df_score, row], ignore_index=True)
             last_row = row
+    # Remove participants with less than min_stages entries
+    for p in to_remove:
+        df_score = df_score.drop(df_score[df_score.participant_id == p].index)
     return df_score
 
 def remove_attrition(df_score):
