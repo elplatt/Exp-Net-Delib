@@ -144,7 +144,7 @@ def fill_attrition(df_score, min_stages=0):
     participant_ids = sorted(set(df_score.participant_id))
     stages = len(set(df_score.stage))
     for p in participant_ids:
-        if len(df_score[df_score.participant_id == p)]) < min_stages:
+        if len(df_score[df_score.participant_id == p]) < min_stages:
             # Skip participants with fewer than min_stages entries
             continue
         for s in range(stages):
