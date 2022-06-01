@@ -1,4 +1,5 @@
 from . import strategy as slstrat
+from .result import RunResult
 
 MODE_ALL = 1
 MODE_FALLBACK = 2
@@ -32,8 +33,8 @@ def learn(
     - critical: If True, only keep social solutions that improve objective
     - sample: The number of neighbors to sample
     
-    #Returns 
-    A list of agent's beliefs over time
+    # Returns 
+    A soclearn.result.RunResult
     '''
     
     # Select the function for individual learning if necessary
@@ -46,8 +47,11 @@ def learn(
     # Initialize current belief dict with initial beliefs
     current_beliefs = dict((k, tuple(v)) for k, v in initial_beliefs.items())
     
-    # Create a list of belief dicts over time
+    # Create lists of belief dicts over time
     beliefs = [current_beliefs]
+    individual_candidates = [None]
+    social_candidates = [None]
+
     
     nodes = list(current_beliefs.keys())
     num_bit = len(current_beliefs[nodes[0]])
@@ -58,15 +62,16 @@ def learn(
         # Perform individual learning on all nodes, if necessary
         if individual:
             individual_beliefs = individual_step(G, current_beliefs, objective=objective)
+            individual_candidates.append(individual_beliefs)
 
         # For MODE_ALL individual learning, update all nodes
         if individual and individual_mode == MODE_ALL:
             # Adopt individual learning results for all nodes
             current_beliefs = individual_beliefs
-            beliefs.append(current_beliefs)
             
         # Perform social learning
         social_beliefs = learning_step(G, current_beliefs, objective=objective, sample=sample)
+        social_candidates.append(social_beliefs)
 
         # Adopt new beliefs based on social and individual learning
         if individual and individual_mode == MODE_FALLBACK:
@@ -98,8 +103,9 @@ def learn(
         
         current_beliefs = next_beliefs
         beliefs.append(current_beliefs)
-        
-    return beliefs
+    
+    result = RunResult(beliefs, individual_candidates, social_candidates)
+    return result
 
 def find_local_maximum(state, objective):
     """Repeatedly change one bit at a time until a local maximum of objective is achieved.

@@ -1,7 +1,8 @@
 import netdelib.soclearn as slearn
 import netdelib.soclearn.models.generated as slgen
+from netdelib.soclearn.result import RunResult
 
-def run_discrete_trial(
+def run_discrete(
     factory,
     learning_strategy,
     initial_beliefs,
@@ -16,7 +17,7 @@ def run_discrete_trial(
     critical=False,
     sample=None
 ):
-    """Run a single trial
+    """Run a single simulation.
     
     Parameters:
     factory: network factory
@@ -33,26 +34,25 @@ def run_discrete_trial(
     sample: The number of neighbors to sample
     
     Returns
-    A list of dictionaries, one for each time step.
-    Each dictionary maps collaborator ids to belief states.
+    A soclearn.result.RunResult
     """
-    beliefs_stages = []
+    result = RunResult([initial_beliefs], [None], [None])
     for stage in range(stages):
         if stage == 0:
             # Create new network and initial beliefs at stage 0
             G = factory.create(stage)
-            beliefs = initial_beliefs
-            beliefs_stages.append(beliefs)
+            stage_initial = initial_beliefs
         else:
+            stage_initial = result.current[-1]
             # At later stages, only create new network if factory.stage_graphs is True
             if factory.stage_graphs:
                 G = factory.create(stage)
 
         # Run several learning steps and add beliefs at each step to beliefs_stages
         # The first element of the result is just the initial belief, which is already in beliefs_stages
-        beliefs_list = slearn.learn(
+        step_result = slearn.learn(
             G,
-            beliefs_stages[-1],
+            stage_initial,
             learning_strategy,
             objective,
             steps,
@@ -61,5 +61,9 @@ def run_discrete_trial(
             individual_mode=individual_mode,
             critical=critical,
             sample=sample)
-        beliefs_stages += beliefs_list[1:]
-    return beliefs_stages
+
+        result.concatenate(step_result)
+
+    return result
+
+run_discrete_trial = run_discrete
