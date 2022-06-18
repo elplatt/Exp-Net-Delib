@@ -36,7 +36,7 @@ def run_discrete(
     Returns
     A soclearn.result.RunResult
     """
-    result = RunResult([initial_beliefs], [None], [None])
+    result = RunResult([initial_beliefs], [None], [None], [None])
     for stage in range(stages):
         if stage == 0:
             # Create new network and initial beliefs at stage 0

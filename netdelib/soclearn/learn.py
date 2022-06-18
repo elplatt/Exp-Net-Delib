@@ -51,6 +51,7 @@ def learn(
     beliefs = [current_beliefs]
     individual_candidates = [None]
     social_candidates = [None]
+    neighbor_beliefs = [None]
 
     
     nodes = list(current_beliefs.keys())
@@ -69,6 +70,12 @@ def learn(
             # Adopt individual learning results for all nodes
             current_beliefs = individual_beliefs
             
+        # Record neighbor states
+        step_neighbors = dict()
+        for v, belief in current_beliefs.items():
+            step_neighbors[v] = [current_beliefs[w] for w in G.neighbors(v)]
+        neighbor_beliefs.append(step_neighbors)
+        
         # Perform social learning
         social_beliefs = learning_step(G, current_beliefs, objective=objective, sample=sample)
         social_candidates.append(social_beliefs)
@@ -104,7 +111,7 @@ def learn(
         current_beliefs = next_beliefs
         beliefs.append(current_beliefs)
     
-    result = RunResult(beliefs, individual_candidates, social_candidates)
+    result = RunResult(beliefs, individual_candidates, social_candidates, neighbor_beliefs)
     return result
 
 def find_local_maximum(state, objective):
