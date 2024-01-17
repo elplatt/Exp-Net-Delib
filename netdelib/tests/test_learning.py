@@ -65,8 +65,8 @@ next_local_majority = {
 
 next_conform_fallback = {
     0: (1, 0, 1, 0, 1, 0),
-    1: (1, 0, 1, 0, 1, 0),
-    2: (1, 0, 1, 0, 1, 0),
+    1: (0, 0, 1, 0, 1, 0),
+    2: (0, 0, 1, 0, 1, 0),
     3: (1, 0, 1, 0, 1, 0),
     4: (1, 0, 1, 0, 1, 0),
     5: (1, 0, 1, 0, 1, 0),
@@ -100,16 +100,17 @@ class TestLearning(unittest.TestCase):
         obj = lambda x: sum(
             1 for i, v in enumerate(true_value)
             if x[i] == v)
-        next = soclearn.learn(G, initial, strategy.local_majority, steps=1)
-        self.assertEqual(next[-1], next_local_majority)
+        result = soclearn.learn(G, initial, strategy.local_majority, steps=1)
+        self.assertEqual(result.current[-1], next_local_majority)
     
     def test_individual_fallback(self):
         obj = lambda x: sum(
             1 for i, v in enumerate(true_value)
             if x[i] == v)
-        next = soclearn.learn(
-            G, initial, strategy.conform, objective=obj, steps=1, individual=True, individual_mode=soclearn.MODE_FALLBACK)
-        self.assertEqual(next[-1], next_conform_fallback)
+        result = soclearn.learn(
+            G, initial, strategy.conform, objective=obj, steps=1,
+            individual=True, individual_all_bits=True, individual_mode=soclearn.MODE_FALLBACK)
+        self.assertEqual(result.current[-1], next_conform_fallback)
     
 
     

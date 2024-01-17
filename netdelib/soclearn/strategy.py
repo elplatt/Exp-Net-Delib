@@ -2,7 +2,7 @@ import random
 import networkx as nx
 import numpy as np
 from numpy import random as nprand
-from statistics import mode, StatisticsError
+from statistics import multimode, StatisticsError
 
 def find_neighbor_bit_mode(G, v, beliefs, bit):
     '''Among node v and its neighbors, find the most common belief in the specified bit.
@@ -20,9 +20,30 @@ def find_neighbor_bit_mode(G, v, beliefs, bit):
     next_belief = beliefs[v][bit]
     neighbor_values += [beliefs[w][bit] for w in G.neighbors(v)]
     try:
-        next_belief = mode(neighbor_values)
+        next_belief = multimode(neighbor_values)[0]
     except StatisticsError: 
         pass
+    return next_belief
+
+def agent_conform(belief, candidates, **kwargs):
+    '''For a single agent, choose the most popluar list of beliefs among neighbors
+    or the current belief if there is no single most popular belief.
+    
+    # Params
+    belief: the agent's own current belief
+    candidates: a list of candidate beliefs
+    
+    # Return value
+    The new belief
+    '''
+    try:
+        modes = multimode(candidates)
+        if len(modes) == 1:
+            next_belief = modes[0]
+        else:
+            next_belief = belief
+    except StatisticsError: 
+        next_belief = belief
     return next_belief
 
 def conform(G, beliefs, sample=None, **kwargs):
@@ -36,7 +57,6 @@ def conform(G, beliefs, sample=None, **kwargs):
     # Return value
     A dictionary mapping nodes to their new beliefs.
     '''
-    true_value = 0
     
     new_beliefs = {}
     current_beliefs = dict(beliefs) #dict of beliefs
@@ -58,11 +78,7 @@ def conform(G, beliefs, sample=None, **kwargs):
         candidates = temp_val[v]
         if sample is not None and len(candidates) > sample:
             candidates = random.sample(temp_val[v], sample)
-        try:
-            next_belief = mode(candidates)
-        except StatisticsError: 
-            next_belief = current_beliefs[v]
-        new_beliefs[v] = tuple(next_belief)
+        new_beliefs[v] = agent_conform(current_beliefs[v], candidates)
     return new_beliefs
 
 most_popular_list = conform
@@ -213,7 +229,11 @@ def local_majority(G, beliefs, sample=None, **kwargs):
             neighbor_bits = [beliefs[v][bit]]
             neighbor_bits += [beliefs[w][bit] for w in neighbors]
             try:
-                next_bit = mode(neighbor_bits)
+                modes = multimode(neighbor_bits)
+                if len(modes) == 1:
+                    next_bit = modes[0]
+                else:
+                    next_bit = beliefs[v][bit]
             except StatisticsError:
                 next_bit = beliefs[v][bit]
             new_bits.append(next_bit)

@@ -70,7 +70,7 @@ def learn(
             # Adopt individual learning results for all nodes
             current_beliefs = individual_beliefs
             
-        # Record neighbor states
+        # Create dict of each node's neighbors' beliefs
         step_neighbors = dict()
         for v, belief in current_beliefs.items():
             step_neighbors[v] = [current_beliefs[w] for w in G.neighbors(v)]
@@ -82,7 +82,7 @@ def learn(
 
         # Adopt new beliefs based on social and individual learning
         if individual and individual_mode == MODE_FALLBACK:
-            # Only fall back to individual belief if social learning is not an improvement
+            # Only fall back to individual belief if social learning yields previous belief
             next_beliefs = dict()
             for v in social_beliefs.keys():
                 if social_beliefs[v] == current_beliefs[v]:
