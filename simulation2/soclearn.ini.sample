@@ -1,0 +1,73 @@
+[abm]
+
+# Number of agents
+n = 100
+
+# Average node degree
+m = 5
+
+# Number of trials
+runs = 1000
+
+# Number of time steps per trial
+stages = 300
+
+# Number of learning steps per time step
+steps = 1
+
+# Number of bits in solution space (
+bit_count = 15
+
+# NK Model k parameter
+k = 6
+nk_exponent = 8
+
+# Probability that each bit is equal to its value in the optimal solution
+# p_error = 0.5 is completely random initial conditions
+p_error = 0.5
+
+
+[networks]
+
+# Which networks are enabled
+# Available networks:
+#   Pref. Attach.
+#   Small World
+#   Long Path
+#   Random Group
+enabled = Pref. Attach.,Small World,Long Path,Random Group
+
+# Degree of each node in small world network
+small_world_k = 4
+
+# Probability of rewiring a connection in the small world network
+small_world_a = 0.1
+
+# Number of edges added from each new node in Preferential-Attachment networks
+barabasi_albert_m = 2
+
+# Prbability of any individual pairwise connection existing in the Erdos-Renyi network
+erdos_renyi_p = 0.04040404
+
+
+[strategies]
+
+# Which strategies are enabled
+enabled = Best Neighbor,Conform
+
+# Whether to perform individual learning in addition to social learning
+individual = True
+
+# Whether to perform individual learning on each bit
+#  True: try flipping each bit independently and choose the best result
+#  False: flip a random bit
+individual_all_bits = False
+
+# How to integrate social and individual learning
+#  1: MODE_ALL - (default) before each social learning step
+#  2: MODE_FALLBACK - only when social learning fails to improve objective
+#  3: MODE_BEST - chose best between individual and social
+individual_mode = 3
+
+# When True, agents only replace old solutions with new solutions if the new solution is better
+critical = True
